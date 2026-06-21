@@ -1,0 +1,1749 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MCSS Organizational Chart</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Georgia','Times New Roman',serif;background:#f0f3f7;color:#1a2e4a;min-height:100vh}
+:root{
+--navy:#1a2e4a;--navy-mid:#24436b;--slate:#4a6080;--steel:#8ea8c3;
+--gold:#c9a84c;--gold-lt:#f0d98a;--light:#f5f7fa;--white:#fff;
+--border:#dce3ec;--mid:#3d5470;--muted:#6b829e;
+--tbd-bg:#d0d0d0;--tbd-text:#555;
+--shadow:0 2px 10px rgba(26,46,74,.10);--shadow-hover:0 6px 22px rgba(26,46,74,.18);
+--radius:8px;
+}
+/* Header */
+.site-header{background:var(--navy);border-bottom:4px solid var(--gold);padding:16px 32px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.hdr-brand{display:flex;align-items:center;gap:14px}
+.hdr-logo{height:60px;width:60px;flex:none}
+@media (max-width:600px){.hdr-logo{height:44px;width:44px}}
+.site-header h1{font-size:1.35rem;font-weight:normal;color:#fff;letter-spacing:.03em}
+.site-header p{font-size:.7rem;color:var(--gold-lt);font-family:Arial,sans-serif;text-transform:uppercase;letter-spacing:.09em;margin-top:2px}
+.hdr-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+/* Buttons */
+.btn{font-family:Arial,sans-serif;font-size:.72rem;font-weight:700;padding:7px 14px;border-radius:5px;cursor:pointer;border:none;text-transform:uppercase;letter-spacing:.05em;transition:all .15s;white-space:nowrap}
+.btn-gold{background:var(--gold);color:var(--navy)}.btn-gold:hover{background:var(--gold-lt)}
+.btn-outline{background:transparent;color:var(--gold-lt);border:1.5px solid var(--gold)}.btn-outline:hover{background:rgba(201,168,76,.18)}
+.btn-banner{background:transparent;color:#7a5400;border:1.5px solid #c9a84c}.btn-banner:hover{background:rgba(201,168,76,.22)}
+.btn-sm{padding:5px 10px;font-size:.65rem}
+/* Edit banner */
+.edit-banner{display:none;background:#fff8e1;border-bottom:2px solid var(--gold);padding:8px 32px;font-family:Arial,sans-serif;font-size:.75rem;color:#7a5400;align-items:center;gap:12px}
+.edit-banner.show{display:flex}
+/* Legend */
+.legend{background:var(--white);border-bottom:1px solid var(--border);padding:8px 32px;display:flex;align-items:center;gap:20px;flex-wrap:wrap;font-family:Arial,sans-serif;font-size:.68rem;color:var(--mid)}
+.leg-item{display:flex;align-items:center;gap:6px}
+.leg-dot{width:11px;height:11px;border-radius:2px;flex-shrink:0}
+.save-indicator{margin-left:auto;font-family:Arial,sans-serif;font-size:.65rem;color:var(--muted);font-style:italic;transition:opacity .4s}
+/* Canvas */
+.canvas{padding:32px 16px 80px;overflow-x:auto}
+/* Org tree */
+.org-tree{display:flex;flex-direction:column;align-items:center;min-width:960px}
+.tier{display:flex;justify-content:center;gap:14px;flex-wrap:nowrap;width:100%}
+.connector-v{width:2px;height:20px;background:var(--border);margin:0 auto}
+.connector-h{width:88%;max-width:1260px;height:2px;background:var(--border);margin:0 auto}
+.branch-row{display:flex;justify-content:space-around;width:88%;max-width:1260px;margin:0 auto}
+.dept-group{display:flex;flex-direction:column;align-items:center;margin:0 4px}
+.dept-label{font-family:Arial,sans-serif;font-size:.58rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);text-align:center;margin-bottom:5px}
+/* Standard cards */
+.card{background:var(--white);border:1.5px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);min-width:176px;max-width:214px;position:relative;transition:box-shadow .15s,transform .15s}
+.card:hover{box-shadow:var(--shadow-hover);transform:translateY(-1px);z-index:10}
+.card-hdr{padding:9px 11px 7px;border-radius:calc(var(--radius) - 1px) calc(var(--radius) - 1px) 0 0;position:relative}
+.card-role{font-family:Arial,sans-serif;font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.09em;margin-bottom:3px;opacity:.88}
+.card-name{font-size:.92rem;font-weight:bold;line-height:1.2}
+.card-name.is-tbd{font-style:italic;opacity:.62;font-size:.78rem}
+.card-body{padding:5px 11px 7px}
+.card-sub{font-family:Arial,sans-serif;font-size:.66rem;color:var(--mid);line-height:1.5}
+.section{margin-top:4px;padding-top:4px;border-top:1px solid var(--border)}
+.section-label{font-family:Arial,sans-serif;font-size:.57rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:2px}
+.tag{display:inline-block;background:var(--light);border:1px solid var(--border);border-radius:3px;font-family:Arial,sans-serif;font-size:.58rem;padding:1px 5px;margin:1px 2px 1px 0;color:var(--mid)}
+.staff-list{list-style:none;margin-top:3px}
+.staff-list li{font-family:Arial,sans-serif;font-size:.64rem;color:var(--mid);padding:2px 0;border-bottom:1px dotted var(--border);display:flex;align-items:flex-start;gap:5px}
+.staff-list li:last-child{border-bottom:none}
+.sdot{width:5px;height:5px;border-radius:50%;background:var(--gold);margin-top:4px;flex-shrink:0}
+.sdot.tbd{background:#bbb}
+.sname{font-weight:600}
+.srole{color:var(--muted)}
+.dual{color:var(--gold);font-weight:700;font-size:.6rem}
+/* Level colours */
+.lvl-super .card-hdr{background:var(--navy);color:#fff}
+.lvl-super .card-role{color:var(--gold-lt)}
+.lvl-super .card-name{color:#fff;font-size:1rem}
+.lvl-cabinet .card-hdr{background:var(--navy-mid);color:#fff}
+.lvl-cabinet .card-role{color:var(--gold-lt)}
+.lvl-cabinet .card-name{color:#fff}
+.lvl-principal .card-hdr{background:var(--slate);color:#fff}
+.lvl-principal .card-role{color:#cfe0f5}
+.lvl-principal .card-name{color:#fff}
+.lvl-staff .card-hdr{background:var(--steel);color:#fff}
+.lvl-staff .card-role{color:#e8f2ff}
+.lvl-staff .card-name{color:#fff;font-size:.84rem}
+.lvl-tbd .card-hdr{background:var(--tbd-bg);color:var(--tbd-text)}
+.lvl-tbd .card-role{color:#666}
+/* Edit button on cards */
+.card-edit-btn{position:absolute;top:5px;right:5px;display:none;background:var(--gold);color:var(--navy);border:none;border-radius:3px;width:20px;height:20px;cursor:pointer;font-size:11px;align-items:center;justify-content:center}
+.edit-mode .card:hover .card-edit-btn{display:flex}
+/* Inline editing */
+.editable-name{cursor:default;border-radius:3px;transition:background .15s}
+.edit-mode .editable-name{cursor:pointer}
+.edit-mode .editable-name:hover{background:rgba(255,255,255,.25);outline:1px dashed rgba(255,255,255,.6)}
+.name-input{background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.6);border-radius:3px;color:inherit;font:inherit;font-size:inherit;font-weight:inherit;width:100%;padding:1px 3px;outline:none}
+
+/* ══ PRINCIPAL EXPAND CARDS ══ */
+.school-row{display:flex;justify-content:center;gap:24px;flex-wrap:wrap;width:100%;padding:0 16px}
+.pcard{background:var(--white);border:1.5px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);width:340px;position:relative;transition:box-shadow .15s}
+.pcard:hover{box-shadow:var(--shadow-hover)}
+.pcard-hdr{background:var(--slate);color:#fff;padding:12px 14px 10px;border-radius:calc(var(--radius) - 1px) calc(var(--radius) - 1px) 0 0;cursor:pointer;user-select:none;display:flex;align-items:center;justify-content:space-between;position:relative}
+.pcard-hdr-left{}
+.pcard-role{font-family:Arial,sans-serif;font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:#cfe0f5;margin-bottom:3px}
+.pcard-name{font-size:1.05rem;font-weight:bold;color:#fff;line-height:1.2}
+.pcard-toggle{background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.4);border-radius:50%;width:26px;height:26px;color:#fff;font-size:16px;font-weight:bold;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .15s;font-family:Arial,sans-serif;line-height:1}
+.pcard-toggle:hover{background:rgba(255,255,255,.35)}
+.pcard-body{padding:10px 14px 12px;display:none}
+.pcard-body.open{display:block}
+.pcard-section{margin-top:6px;padding-top:6px;border-top:1px solid var(--border)}
+.pcard-section:first-child{margin-top:0;padding-top:0;border-top:none}
+.pcard-section-label{font-family:Arial,sans-serif;font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);margin-bottom:4px;display:flex;align-items:center;justify-content:space-between}
+.roster-toggle-btn{background:var(--navy-mid);color:#fff;border:none;border-radius:3px;font-size:.58rem;padding:2px 8px;cursor:pointer;font-family:Arial,sans-serif;font-weight:700}
+.roster-list{list-style:none;margin-top:2px;columns:2;column-gap:12px}
+.roster-list li{font-family:Arial,sans-serif;font-size:.63rem;color:var(--mid);padding:2px 0;border-bottom:1px dotted var(--border);break-inside:avoid;display:flex;gap:4px}
+.roster-list li:last-child{border-bottom:none}
+.ap-list{list-style:none;margin-top:2px}
+.ap-list li{font-family:Arial,sans-serif;font-size:.68rem;color:var(--mid);padding:3px 0;border-bottom:1px dotted var(--border);display:flex;gap:6px;align-items:flex-start}
+.ap-list li:last-child{border-bottom:none}
+.pcard-edit-btn{position:absolute;top:8px;right:36px;display:none;background:var(--gold);color:var(--navy);border:none;border-radius:3px;width:20px;height:20px;cursor:pointer;font-size:11px;align-items:center;justify-content:center}
+.edit-mode .pcard:hover .pcard-edit-btn{display:flex}
+
+/* ── Add / Delete position controls ── */
+.add-position-btn{display:none;width:100%;margin-top:6px;padding:4px 0;background:rgba(201,168,76,.12);border:1px dashed var(--gold);border-radius:4px;font-family:Arial,sans-serif;font-size:.62rem;color:var(--gold);font-weight:700;cursor:pointer;text-align:center;transition:background .15s}
+.add-position-btn:hover{background:rgba(201,168,76,.25)}
+.edit-mode .add-position-btn{display:block}
+.del-btn{display:none;background:none;border:none;color:#c0392b;font-size:.75rem;cursor:pointer;padding:0 2px;line-height:1;flex-shrink:0;opacity:.7;transition:opacity .15s;margin-left:auto}
+.del-btn:hover{opacity:1}
+.edit-mode .staff-list li .del-btn,
+.edit-mode .ap-list li .del-btn,
+.edit-mode .roster-list li .del-btn{display:inline-flex}
+
+/* Modal */
+.overlay{display:none;position:fixed;inset:0;background:rgba(10,20,40,.55);z-index:1000;align-items:center;justify-content:center}
+.overlay.open{display:flex}
+.modal{background:#fff;border-radius:10px;padding:26px 30px;min-width:320px;max-width:440px;width:90%;box-shadow:0 16px 48px rgba(26,46,74,.28);border-top:4px solid var(--navy)}
+.modal h2{font-size:.95rem;color:var(--navy);margin-bottom:16px;font-family:Arial,sans-serif}
+.modal label{display:block;font-family:Arial,sans-serif;font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--mid);margin:10px 0 4px}
+.modal input{width:100%;padding:7px 9px;border:1.5px solid var(--border);border-radius:5px;font-size:.88rem;font-family:Georgia,serif;color:#1a2e4a;background:var(--light);transition:border .15s}
+.modal input:focus{outline:none;border-color:var(--navy);background:#fff}
+.modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:18px}
+.btn-save{background:var(--navy);color:#fff}.btn-save:hover{background:var(--navy-mid)}
+.btn-cancel{background:var(--light);color:var(--mid);border:1px solid var(--border)}.btn-cancel:hover{background:var(--border)}
+
+/* ══ JOB DESCRIPTION DRAWER ══ */
+.jd-overlay{display:none;position:fixed;inset:0;background:rgba(10,20,40,.45);z-index:200;}
+.jd-overlay.jd-open{display:block;}
+#jd-drawer{position:fixed;top:0;right:0;bottom:0;width:min(720px,100vw);background:#fff;box-shadow:-6px 0 32px rgba(0,0,0,.18);z-index:201;transform:translateX(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;}
+#jd-drawer.jd-open{transform:translateX(0);}
+.jd-hdr{background:#1e3a5f;padding:1.5rem 2rem 1.25rem;flex-shrink:0;}
+.jd-hdr .jd-eyebrow{font-family:Arial,sans-serif;font-size:.62rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#c9a84c;margin-bottom:.4rem;}
+.jd-hdr h2{font-size:1.4rem;font-weight:800;color:#fff;line-height:1.2;margin-bottom:.15rem;}
+.jd-hdr .jd-secondary{font-size:.85rem;font-weight:600;color:#f0e0a8;margin-bottom:.2rem;}
+.jd-hdr .jd-incumbent{font-size:.8rem;color:rgba(255,255,255,.6);}
+.jd-chips{display:flex;gap:1rem;margin-top:.9rem;flex-wrap:wrap;}
+.jd-chip{font-family:Arial,sans-serif;font-size:.65rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#f0e0a8;border:1px solid rgba(201,168,76,.4);border-radius:3px;padding:.18rem .5rem;}
+.jd-chip.jd-chip-funding{color:#ffe9a0;border-color:rgba(255,220,100,.5);background:rgba(201,168,76,.12);}
+.jd-toolbar{display:flex;align-items:center;justify-content:space-between;padding:.6rem 2rem;border-bottom:1px solid #cdd5e0;background:#fff;flex-shrink:0;}
+.jd-back-btn{background:none;border:none;cursor:pointer;color:#5a6a80;font-size:.78rem;font-family:Arial,sans-serif;padding:.3rem .5rem;border-radius:4px;transition:background .15s;}
+.jd-back-btn:hover{background:#eef1f6;}
+.jd-print-btn{background:#1e3a5f;color:#fff;border:none;cursor:pointer;font-family:Arial,sans-serif;font-size:.72rem;font-weight:700;padding:.38rem .95rem;border-radius:4px;transition:background .15s;}
+.jd-print-btn:hover{background:#2c4f7c;}
+.jd-body{flex:1;overflow-y:auto;padding:2rem;}
+.jd-section{margin-bottom:2rem;}
+.jd-section:last-child{margin-bottom:0;}
+.jd-section-label{font-family:Arial,sans-serif;font-size:.6rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#c9a84c;border-bottom:2px solid #f0e0a8;padding-bottom:.32rem;margin-bottom:.85rem;}
+.jd-intro{font-size:.88rem;line-height:1.7;color:#1a2535;}
+.jd-list{list-style:none;padding:0;}
+.jd-list li{font-size:.855rem;line-height:1.65;color:#1a2535;padding:.32rem 0 .32rem 1.05rem;border-bottom:1px solid #f0f2f5;position:relative;}
+.jd-list li::before{content:'';position:absolute;left:0;top:.74rem;width:5px;height:5px;border-radius:50%;background:#c9a84c;}
+.jd-two-col{display:grid;grid-template-columns:1fr 1fr;gap:0 2rem;}
+.jd-q-block{margin-bottom:1.2rem;}
+.jd-q-label{font-family:Arial,sans-serif;font-size:.68rem;font-weight:700;color:#4a6080;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.38rem;}
+.jd-reports-box{background:#eef1f6;border-left:4px solid #1e3a5f;border-radius:0 4px 4px 0;padding:.72rem 1rem;font-size:.84rem;margin-bottom:1.4rem;}
+.jd-reports-box strong{color:#1e3a5f;}
+.jd-dr-grid{display:grid;grid-template-columns:1fr 1fr;gap:.48rem;margin-top:.45rem;}
+.jd-dr-chip{background:#eef1f6;border:1px solid #cdd5e0;border-radius:4px;padding:.42rem .68rem;font-size:.76rem;color:#1a2535;}
+.jd-dr-chip span{display:block;font-size:.63rem;color:#5a6a80;margin-top:.08rem;}
+.jd-callout{border-radius:0 4px 4px 0;padding:.72rem 1rem;font-size:.84rem;line-height:1.6;margin-bottom:.95rem;color:#1a2535;}
+.jd-callout.jd-callout-navy{background:#f0f4f8;border:1px solid #b0c4d8;border-left:4px solid #1e3a5f;}
+.jd-callout.jd-callout-gold{background:#f5f0e8;border:1px solid #d4b86a;border-left:4px solid #c9a84c;}
+.jd-callout.jd-callout-green{background:#f0f6f0;border:1px solid #a8c8a8;border-left:4px solid #4a8a4a;}
+.jd-callout strong{color:#1e3a5f;}
+.jd-callout.jd-callout-green strong{color:#2d5a2d;}
+.card.has-jd{cursor:pointer;}
+.card.has-jd .card-hdr::after{content:'View JD →';font-family:Arial,sans-serif;font-size:.55rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:rgba(255,255,255,.5);display:block;margin-top:.3rem;}
+.card.has-jd.lvl-tbd .card-hdr::after{color:rgba(70,70,70,.65);}
+/* ── JD PRINT STYLES ── */
+@media print{
+  .jd-print-active #jd-print-root{display:block!important;}
+  .jd-print-active body>*:not(#jd-print-root){display:none!important;}
+  #jd-print-root{font-family:'Segoe UI',Arial,sans-serif;color:#1a2535;max-width:7.5in;margin:0 auto;}
+  .jp-hdr{background:#1e3a5f!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;color:#fff;padding:.5in .5in .35in;margin-bottom:.3in;}
+  .jp-eyebrow{font-size:7pt;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#c9a84c!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;margin-bottom:4pt;}
+  .jp-hdr h1{font-size:20pt;font-weight:800;color:#fff;margin-bottom:2pt;}
+  .jp-secondary{font-size:10pt;font-weight:600;color:#f0e0a8!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;margin-bottom:3pt;}
+  .jp-incumbent{font-size:9pt;color:rgba(255,255,255,.7);}
+  .jp-chips{margin-top:10pt;display:flex;gap:10pt;flex-wrap:wrap;}
+  .jp-chip{font-size:7pt;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#f0e0a8!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;border:1pt solid rgba(201,168,76,.5);padding:2pt 5pt;}
+  .jp-chip-funding{color:#ffe9a0!important;border-color:rgba(255,220,100,.5)!important;background:rgba(201,168,76,.15)!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  .jp-body{padding:0 .5in;}
+  .jp-section{margin-bottom:.2in;page-break-inside:avoid;}
+  .jp-section-label{font-size:7pt;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#c9a84c!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;border-bottom:1.5pt solid #f0e0a8!important;padding-bottom:3pt;margin-bottom:8pt;}
+  .jp-intro{font-size:9.5pt;line-height:1.6;}
+  .jp-list{list-style:none;padding:0;}
+  .jp-list li{font-size:9pt;line-height:1.55;padding:2pt 0 2pt 10pt;position:relative;border-bottom:.5pt solid #f0f2f5!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  .jp-list li::before{content:'•';position:absolute;left:0;color:#c9a84c!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  .jp-two-col{display:grid;grid-template-columns:1fr 1fr;gap:0 18pt;}
+  .jp-reports-box{background:#eef1f6!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;border-left:3pt solid #1e3a5f!important;padding:6pt 9pt;font-size:9pt;margin-bottom:14pt;}
+  .jp-dr-grid{display:grid;grid-template-columns:1fr 1fr;gap:5pt;margin-top:5pt;}
+  .jp-dr-chip{background:#eef1f6!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;border:.5pt solid #cdd5e0;padding:4pt 6pt;font-size:8pt;}
+  .jp-q-label{font-size:7pt;font-weight:700;color:#4a6080;text-transform:uppercase;letter-spacing:.08em;margin-bottom:3pt;}
+  .jp-callout-navy{background:#f0f4f8!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;border-left:3pt solid #1e3a5f!important;padding:6pt 9pt;font-size:9pt;line-height:1.6;margin-bottom:10pt;}
+  .jp-callout-gold{background:#f5f0e8!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;border-left:3pt solid #c9a84c!important;padding:6pt 9pt;font-size:9pt;line-height:1.6;margin-bottom:10pt;}
+  .jp-callout-green{background:#f0f6f0!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;border-left:3pt solid #4a8a4a!important;padding:6pt 9pt;font-size:9pt;line-height:1.6;margin-bottom:10pt;}
+}
+
+@media print{
+.hdr-logo{height:48px;width:48px}
+.site-header .hdr-actions,.edit-banner,.save-indicator,.card-edit-btn,.pcard-edit-btn,.add-position-btn,.del-btn,.no-print,#jd-drawer,.jd-overlay,#jd-print-root{display:none!important}
+body{background:#fff}
+.canvas{padding:6px}
+.card,.pcard{break-inside:avoid;box-shadow:none;border:1px solid #ccc}
+.pcard-body{display:block!important}
+.org-tree{min-width:unset}
+@page{size:landscape;margin:.4in}
+}
+</style>
+</head>
+<body>
+
+<div class="site-header">
+<div class="hdr-brand">
+<img class="hdr-logo" src="data:image/png;base64,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" alt="McIntosh County Schools seal">
+<div>
+<h1>McIntosh County School System</h1>
+<p>Organizational Chart &mdash; FY 2025&ndash;26</p>
+</div>
+</div>
+<div class="hdr-actions">
+<button class="btn btn-outline" id="editToggleBtn" onclick="toggleEditMode()">✏️ Edit Mode</button>
+<button class="btn btn-outline" onclick="expandAllPcards()">Expand All</button>
+<button class="btn btn-outline" onclick="collapseAllPcards()">Collapse All</button>
+<button class="btn btn-gold" onclick="printChart()">🖨 Print / Save PDF</button>
+</div>
+</div>
+
+<div class="edit-banner" id="editBanner">
+<strong>✏️ Edit Mode Active</strong> &mdash; Click any name to edit inline &nbsp;|&nbsp; Click ✕ on any row to remove it &nbsp;|&nbsp; Click <em>+ Add Position</em> under any list to add a new role
+<span style="margin-left:auto;display:flex;gap:6px;flex-wrap:wrap">
+<button class="btn btn-banner btn-sm no-print" onclick="downloadBakedChart()" title="Save a copy of this page with all edits built in, ready to commit to GitHub">⬇ Download Updated Chart</button>
+<button class="btn btn-banner btn-sm no-print" onclick="exportEdits()" title="Save your edits as a JSON file">💾 Export Edits</button>
+<button class="btn btn-banner btn-sm no-print" onclick="document.getElementById('importFile').click()" title="Load edits from a JSON file">📥 Import Edits</button>
+<button class="btn btn-banner btn-sm no-print" onclick="resetAllEdits()" title="Erase all saved edits and restore the original chart">♻ Reset All Edits</button>
+<button class="btn btn-banner btn-sm no-print" onclick="toggleEditMode()">Done</button>
+</span>
+<input type="file" id="importFile" accept=".json,application/json" style="display:none">
+</div>
+
+<div class="legend">
+<div class="leg-item"><div class="leg-dot" style="background:var(--navy)"></div>Superintendent</div>
+<div class="leg-item"><div class="leg-dot" style="background:var(--navy-mid)"></div>Cabinet / Directors</div>
+<div class="leg-item"><div class="leg-dot" style="background:var(--slate)"></div>Principals</div>
+<div class="leg-item"><div class="leg-dot" style="background:var(--steel)"></div>Staff</div>
+<div class="leg-item"><div class="leg-dot" style="background:var(--tbd-bg);border:1px dashed #888"></div>TBD</div>
+<div class="leg-item"><span style="color:var(--gold);font-weight:700">★</span>&nbsp;Dual role</div>
+<div class="save-indicator" id="saveIndicator"></div>
+<div class="no-print" style="margin-left:auto;font-family:Arial,sans-serif;font-size:.63rem;font-style:italic;color:var(--muted)">Click ▸ on any principal card to expand their team</div>
+</div>
+
+<div class="canvas">
+<div class="org-tree" id="orgTree">
+
+<!-- ══ SUPERINTENDENT ══ -->
+<div class="tier">
+<div class="dept-group">
+<div class="card lvl-super" id="card-super">
+<div class="card-hdr">
+<div class="card-role" data-id="card-super" data-field="role">Superintendent</div>
+<div class="card-name editable-name" data-id="card-super" data-field="name">Merwan Massa</div>
+<button class="card-edit-btn" onclick="openModal('card-super',event)">✏️</button>
+</div>
+<div class="card-body"><div class="card-sub">McIntosh County School System</div></div>
+</div>
+</div>
+</div>
+
+<!-- Direct support -->
+<div class="connector-v"></div>
+<div class="tier" style="gap:10px">
+<div class="dept-group">
+<div class="dept-label">Direct Support</div>
+<div style="display:flex;gap:10px">
+<div class="card lvl-staff" id="card-sylvia">
+<div class="card-hdr">
+<div class="card-role" data-id="card-sylvia" data-field="role">Superintendent's Secretary</div>
+<div class="card-name editable-name" data-id="card-sylvia" data-field="name">Sylvia Thompson</div>
+<button class="card-edit-btn" onclick="openModal('card-sylvia',event)">✏️</button>
+</div>
+</div>
+<div class="card lvl-staff" id="card-mitzi">
+<div class="card-hdr">
+<div class="card-role" data-id="card-mitzi" data-field="role">BOE Front Desk Receptionist</div>
+<div class="card-name editable-name" data-id="card-mitzi" data-field="name">Mitzi Pearson</div>
+<button class="card-edit-btn" onclick="openModal('card-mitzi',event)">✏️</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- Connector to cabinet -->
+<div class="connector-v" style="height:14px"></div>
+<div class="connector-h"></div>
+<div class="branch-row">
+<div class="connector-v"></div><div class="connector-v"></div><div class="connector-v"></div>
+<div class="connector-v"></div><div class="connector-v"></div><div class="connector-v"></div>
+<div class="connector-v"></div>
+</div>
+
+<!-- ══ CABINET ROW ══ -->
+<div class="tier" style="align-items:flex-start">
+
+<!-- SCHOOLS placeholder -->
+<div class="dept-group">
+<div class="dept-label">Schools</div>
+<div class="card lvl-principal" style="cursor:default">
+<div class="card-hdr">
+<div class="card-role">Three Campuses</div>
+<div class="card-name" style="color:#fff;font-size:.82rem">TGES · MCMS · MCA</div>
+</div>
+<div class="card-body"><div class="card-sub" style="font-style:italic">See school cards below ↓</div></div>
+</div>
+</div>
+
+<!-- CURRICULUM -->
+<div class="dept-group">
+<div class="dept-label">Curriculum</div>
+<div class="card lvl-cabinet" id="card-curriculum">
+<div class="card-hdr">
+<div class="card-role" data-id="card-curriculum" data-field="role">Curriculum Director</div>
+<div class="card-name editable-name" data-id="card-curriculum" data-field="name">Sandra Ryals</div>
+<button class="card-edit-btn" onclick="openModal('card-curriculum',event)">✏️</button>
+</div>
+<div class="card-body">
+<div class="section">
+<div class="section-label">Academic Coaches</div>
+<ul class="staff-list">
+<li><span class="sdot"></span><div><span class="sname editable-name" data-id="curr-c1" data-field="name">Alicia Rosenbaum</span></div></li>
+<li><span class="sdot"></span><div><span class="sname editable-name" data-id="curr-c2" data-field="name">Christina Ricker</span></div></li>
+<li><span class="sdot"></span><div><span class="sname editable-name" data-id="curr-c3" data-field="name">Amanda Deverger</span></div></li>
+</ul>
+</div>
+<div class="section">
+<div class="section-label">Also Oversees</div>
+<span class="tag">Accountability</span>
+<span class="tag">Gifted</span>
+<span class="tag">MTSS Coord — Melissa Francisco</span>
+</div>
+</div>
+</div>
+</div>
+
+<!-- OPERATIONS -->
+<div class="dept-group">
+<div class="dept-label">Operations</div>
+<div class="card lvl-cabinet" id="card-ops">
+<div class="card-hdr">
+<div class="card-role" data-id="card-ops" data-field="role">Director of Operations / Title IX</div>
+<div class="card-name editable-name" data-id="card-ops" data-field="name">Scott Brooker</div>
+<button class="card-edit-btn" onclick="openModal('card-ops',event)">✏️</button>
+</div>
+<div class="card-body">
+<div class="section">
+<div class="section-label">Student Services</div>
+<ul class="staff-list">
+<li><span class="sdot"></span><div><span class="sname editable-name" data-id="ops-ss1" data-field="name">Leslie Poppell</span> <span class="srole">Student Svcs. Coord.</span></div></li>
+</ul>
+<div style="margin-top:3px"><span class="tag">Alt. School</span><span class="tag">Tribunals</span><span class="tag">Testing</span><span class="tag">Pre-K</span></div>
+</div>
+<div class="section">
+<div class="section-label">Nutrition</div>
+<ul class="staff-list">
+<li><span class="sdot"></span><div><span class="sname editable-name" data-id="ops-n1" data-field="name">Rose Harrison</span> <span class="srole">Nutrition Dir.</span></div></li>
+<li><span class="sdot"></span><div><span class="sname editable-name" data-id="ops-n2" data-field="name">Marlo Jackson</span> <span class="srole">Elem Lead</span></div></li>
+<li><span class="sdot"></span><div><span class="sname editable-name" data-id="ops-n3" data-field="name">Lucille Mitchell</span> <span class="srole">MS Lead</span></div></li>
+<li><span class="sdot"></span><div><span class="sname editable-name" data-id="ops-n4" data-field="name">Andra Heidt</span> <span class="srole">HS Lead</span></div></li>
+</ul>
+</div>
+<div class="section">
+<div class="section-label">Transportation</div>
+<ul class="staff-list">
+<li><span class="sdot"></span><div><span class="sname editable-name" data-id="ops-t1" data-field="name">Shannon Sherba</span> <span class="srole">Trans. Director</span></div></li>
+<li><span class="sdot"></span><div><span class="sname editable-name" data-id="ops-t2" data-field="name">Shawn O'Neill</span> <span class="srole">Mechanic</span></div></li>
+<li><span class="sdot"></span><div><span class="sname editable-name" data-id="ops-t3" data-field="name">Don Kern</span> <span class="srole">Mechanic</span></div></li>
+<li><span class="sdot"></span><div><span class="sname editable-name" data-id="ops-t4" data-field="name">Sheryl Middeke</span> <span class="srole">Trans. Secretary</span></div></li>
+<li><span class="sdot tbd"></span><div><span class="sname editable-name is-tbd" data-id="ops-t5" data-field="name">Bus Drivers / Monitors</span></div></li>
+</ul>
+</div>
+<div class="section">
+<div class="section-label">Facilities &amp; Maintenance</div>
+<ul class="staff-list">
+<li><span class="sdot"></span><div><span class="sname editable-name" data-id="ops-m1" data-field="name">Heath Mixon</span> <span class="srole">Maintenance Dir.</span></div></li>
+<li><span class="sdot"></span><div><span class="sname editable-name" data-id="ops-m2" data-field="name">Kirk Loder</span> <span class="srole">Worker 1</span></div></li>
+<li><span class="sdot"></span><div><span class="sname editable-name" data-id="ops-m3" data-field="name">Richard Stephens</span> <span class="srole">Worker 2</span></div></li>
+<li><span class="sdot"></span><div><span class="sname editable-name" data-id="ops-m4" data-field="name">Jonathon Warren</span> <span class="srole">Worker 3</span></div></li>
+<li><span class="sdot"></span><div><span class="sname editable-name" data-id="ops-m5" data-field="name">Brad Larremore</span> <span class="srole">Worker 4</span></div></li>
+<li><span class="sdot"></span><div><span class="sname editable-name" data-id="ops-m6" data-field="name">Gerald Mixon</span> <span class="srole">Worker 5</span></div></li>
+<li><span class="sdot"></span><div><span class="sname editable-name" data-id="ops-m7" data-field="name">Randy McNeal</span> <span class="srole">Worker 6</span></div></li>
+<li><span class="sdot"></span><div><span class="sname editable-name" data-id="ops-m8" data-field="name">William Faircloth</span> <span class="srole">Worker 7</span></div></li>
+</ul>
+</div>
+<div class="section">
+<div class="section-label">Athletics <span style="font-weight:normal;font-style:italic">(co-supervised w/ HS Principal)</span></div>
+<ul class="staff-list">
+</ul>
+</div>
+<div class="section">
+<div class="section-label">Human Resources</div>
+<ul class="staff-list">
+<li><span class="sdot"></span><div><span class="sname editable-name" data-id="ops-hr1" data-field="name">Viette Hunter</span> <span class="srole">½-time HR <span class="dual">★ dual</span></span></div></li>
+<li><span class="sdot"></span><div><span class="sname editable-name" data-id="ops-hr2" data-field="name">Elsie Lane</span> <span class="srole">Student Information Specialist</span></div></li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+
+<!-- SPECIAL ED -->
+<div class="dept-group">
+<div class="dept-label">Special Education</div>
+<div class="card lvl-cabinet" id="card-sped">
+<div class="card-hdr">
+<div class="card-role" data-id="card-sped" data-field="role">Special Education Director</div>
+<div class="card-name editable-name" data-id="card-sped" data-field="name">Dr. Rachel Carlyle</div>
+<button class="card-edit-btn" onclick="openModal('card-sped',event)">✏️</button>
+</div>
+<div class="card-body">
+<div class="section">
+<div class="section-label">Oversees</div>
+<span class="tag">Special Education</span><span class="tag">Nurses</span><span class="tag">School Psychologist</span>
+</div>
+<div class="section">
+<div class="section-label">Support</div>
+<ul class="staff-list">
+<li><span class="sdot"></span><div><span class="sname editable-name" data-id="sped-s2" data-field="name">Stephanie Largent</span> <span class="srole">School Psychologist</span></div></li>
+<li><span class="sdot"></span><div><span class="sname editable-name" data-id="sped-s1" data-field="name">Tina Thomas</span> <span class="srole">SpEd Secretary <span class="dual">★ dual</span></span></div></li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+
+<!-- FEDERAL PROGRAMS -->
+<div class="dept-group">
+<div class="dept-label">Federal Programs</div>
+<div class="card lvl-cabinet" id="card-federal">
+<div class="card-hdr">
+<div class="card-role" data-id="card-federal" data-field="role">Federal Programs Director</div>
+<div class="card-name editable-name" data-id="card-federal" data-field="name">Ms. Cassandra Noble</div>
+<button class="card-edit-btn" onclick="openModal('card-federal',event)">✏️</button>
+</div>
+<div class="card-body">
+<div class="card-sub">49% Federal Programs Allocation</div>
+<div class="section">
+<div class="section-label">Programs</div>
+<span class="tag">Title I</span><span class="tag">Title II</span><span class="tag">Title III</span><span class="tag">Title IV</span>
+<span class="tag">Migrant Ed</span><span class="tag">Homeless/McKinney-Vento</span><span class="tag">Consolidated App.</span>
+</div>
+<div class="section">
+<div class="section-label">Staff</div>
+<ul class="staff-list">
+<li><span class="sdot"></span><div><span class="sname editable-name" data-id="fed-s1" data-field="name">Corbin Poppell</span> <span class="srole">Parent Resource Coord.</span></div></li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+
+<!-- TECHNOLOGY -->
+<div class="dept-group">
+<div class="dept-label">Technology</div>
+<div class="card lvl-cabinet" id="card-tech">
+<div class="card-hdr">
+<div class="card-role" data-id="card-tech" data-field="role">Technology Director</div>
+<div class="card-name editable-name" data-id="card-tech" data-field="name">Rusty Boone</div>
+<button class="card-edit-btn" onclick="openModal('card-tech',event)">✏️</button>
+</div>
+<div class="card-body">
+<div class="section">
+<div class="section-label">Tech Support Staff</div>
+<ul class="staff-list">
+<li><span class="sdot"></span><div><span class="sname editable-name" data-id="tech-s1" data-field="name">Ken Hyman</span> <span class="srole">Elem / Safety</span></div></li>
+<li><span class="sdot"></span><div><span class="sname editable-name" data-id="tech-s2" data-field="name">Chris Ours</span> <span class="srole">MCMS</span></div></li>
+<li><span class="sdot"></span><div><span class="sname editable-name" data-id="tech-s3" data-field="name">Susie Moody</span> <span class="srole">MCA</span></div></li>
+<li><span class="sdot"></span><div><span class="sname editable-name" data-id="tech-s4" data-field="name">Tina Thomas</span> <span class="srole">Tech Secretary <span class="dual">★ dual</span></span></div></li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+
+<!-- FINANCE -->
+<div class="dept-group">
+<div class="dept-label">Finance</div>
+<div class="card lvl-cabinet" id="card-cfo">
+<div class="card-hdr">
+<div class="card-role" data-id="card-cfo" data-field="role">Chief Financial Officer</div>
+<div class="card-name editable-name" data-id="card-cfo" data-field="name">Tammy Franklin</div>
+<button class="card-edit-btn" onclick="openModal('card-cfo',event)">✏️</button>
+</div>
+<div class="card-body">
+<div class="section">
+<div class="section-label">Finance Staff</div>
+<ul class="staff-list">
+<li><span class="sdot"></span><div><span class="sname editable-name" data-id="cfo-s1" data-field="name">Carly Rayhon</span> <span class="srole">Accounts Payable</span></div></li>
+<li><span class="sdot"></span><div><span class="sname editable-name" data-id="cfo-s2" data-field="name">Viette Hunter</span> <span class="srole">½-time CFO Support <span class="dual">★ dual</span></span></div></li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+
+</div><!-- end cabinet tier -->
+
+<!-- ══ SCHOOLS SECTION ══ -->
+<div class="connector-v" style="height:24px"></div>
+<div style="font-family:Arial,sans-serif;font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);text-align:center;margin-bottom:12px">School Campuses — Click any card to expand</div>
+<div class="school-row">
+
+<!-- ── TGES ── -->
+<div class="pcard" id="pcard-tges">
+<div class="pcard-hdr" onclick="togglePcard('tges',event)">
+<div class="pcard-hdr-left">
+<div class="pcard-role editable-name" data-id="pcard-tges" data-field="role">Elementary Principal — Todd-Grant Elementary</div>
+<div class="pcard-name editable-name" data-id="pcard-tges" data-field="name">Delmano Mitchell</div>
+</div>
+<button class="pcard-toggle" id="pcard-tges-toggle">▸</button>
+</div>
+<button class="pcard-edit-btn" onclick="openModal('pcard-tges',event)">✏️</button>
+<div class="pcard-body" id="pcard-tges-body">
+<div class="pcard-section">
+<div class="pcard-section-label">Assistant Principals</div>
+<ul class="ap-list">
+<li><span class="sdot"></span><div><span class="sname editable-name" data-id="tges-ap1" data-field="name">Amanda Morris</span> <span class="srole">AP</span></div></li>
+<li><span class="sdot tbd"></span><div><span class="sname editable-name is-tbd" data-id="tges-ap2" data-field="name">AP — TBD</span></div></li>
+</ul>
+</div>
+<div class="pcard-section">
+<div class="pcard-section-label">
+<span>Teachers — TGES (51)</span>
+<button class="roster-toggle-btn" onclick="toggleRoster('tges-roster',this,event)">Show Roster</button>
+</div>
+<ul class="roster-list" id="tges-roster" style="display:none">
+<li><span class="sdot"></span><div><span class="sname">Auge, Tiffany</span> <span class="srole">Pre-K</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Griffin, Kasey</span> <span class="srole">Pre-K</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Hall, Miasha</span> <span class="srole">Pre-K</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Handley, Vaishali</span> <span class="srole">K</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Thomas, Ashley</span> <span class="srole">K</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Turner, Kayla</span> <span class="srole">K</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Veal, Marlee</span> <span class="srole">K</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Winsness, Morgan</span> <span class="srole">K</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Anglin, Pam</span> <span class="srole">1st</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Mason, Tresia</span> <span class="srole">1st</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Handley, Amy</span> <span class="srole">1st</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Thomas, Morgan</span> <span class="srole">1st</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Waddell, Allison</span> <span class="srole">1st</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Lewis, Eric</span> <span class="srole">2nd</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Handley, Jacob</span> <span class="srole">2nd</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Middleton, Paige</span> <span class="srole">2nd</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Seawell, Alacia</span> <span class="srole">2nd</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Walczak, Madison</span> <span class="srole">2nd</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Bryant, Felecia</span> <span class="srole">3rd Math/Sci/SS</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Burris, Karen</span> <span class="srole">3rd ELA</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Goodbread, Morgan</span> <span class="srole">3rd ELA</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Jordan, Emily</span> <span class="srole">3rd Self-Cont.</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Simmons, Teresa</span> <span class="srole">3rd Math/Sci/SS</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Ekberg, Maria</span> <span class="srole">4th Math/Sci/SS</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Rigdon, Nicole</span> <span class="srole">4th ELA</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Thomas, Hope</span> <span class="srole">4th ELA</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Waddell, Emily</span> <span class="srole">4th Math/Sci/SS</span></div></li>
+<li><span class="sdot tbd"></span><div><span class="sname is-tbd">New Teacher — TBD</span> <span class="srole">4th Math/Sci/SS</span></div></li>
+<li><span class="sdot tbd"></span><div><span class="sname is-tbd">New Teacher — TBD</span> <span class="srole">4th ELA</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Lilliston, Veronica</span> <span class="srole">5th ELA/Writing</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">McCorkle, Brandy</span> <span class="srole">5th Math</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Peeler, Elisabeth</span> <span class="srole">5th SS</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Roberson, Elizabeth</span> <span class="srole">5th Reading</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Skeen, Brandan</span> <span class="srole">5th Science</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Baker, Tania</span> <span class="srole">K-5 SWD</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Barnhill, Magan</span> <span class="srole">K-5 Speech</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Collins, Kacey</span> <span class="srole">K-5 SWD</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">DeLoach, Robin</span> <span class="srole">K-5 SWD</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">DeSantis, Brooke</span> <span class="srole">K-5 SWD</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Harmon, Lizzie</span> <span class="srole">K-5 SWD</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Loyd, Paula</span> <span class="srole">K-5 SWD Lead SPED</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Owens, Mira</span> <span class="srole">4-5 SWD</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Ryals, Allison</span> <span class="srole">Pre-K SWD (49%)</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Brooks, Yvonne</span> <span class="srole">K-5 EIP</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Emery, Dana</span> <span class="srole">K-5 EIP</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Gandia, Shavonne</span> <span class="srole">K-5 EIP</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Webb, Gracie</span> <span class="srole">K-5 Music</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Massa, Lisa</span> <span class="srole">K-5 Art</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Powell, Tyler</span> <span class="srole">K-5 PE</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Brown, Andrew</span> <span class="srole">K-5 PE</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Weber-Gordon, Melissa</span> <span class="srole">K-5 Media Specialist</span></div></li>
+</ul>
+</div>
+</div>
+</div>
+
+<!-- ── MCMS ── -->
+<div class="pcard" id="pcard-mcms">
+<div class="pcard-hdr" onclick="togglePcard('mcms',event)">
+<div class="pcard-hdr-left">
+<div class="pcard-role editable-name" data-id="pcard-mcms" data-field="role">Middle School Principal — McIntosh County Middle School</div>
+<div class="pcard-name editable-name" data-id="pcard-mcms" data-field="name">Tracy Robinson</div>
+</div>
+<button class="pcard-toggle" id="pcard-mcms-toggle">▸</button>
+</div>
+<button class="pcard-edit-btn" onclick="openModal('pcard-mcms',event)">✏️</button>
+<div class="pcard-body" id="pcard-mcms-body">
+<div class="pcard-section">
+<div class="pcard-section-label">Assistant Principals</div>
+<ul class="ap-list">
+<li><span class="sdot tbd"></span><div><span class="sname editable-name is-tbd" data-id="mcms-ap1" data-field="name">AP — TBD</span></div></li>
+</ul>
+</div>
+<div class="pcard-section">
+<div class="pcard-section-label">
+<span>Teachers — MCMS (27)</span>
+<button class="roster-toggle-btn" onclick="toggleRoster('mcms-roster',this,event)">Show Roster</button>
+</div>
+<ul class="roster-list" id="mcms-roster" style="display:none">
+<li><span class="sdot"></span><div><span class="sname">Alford, Tammy</span> <span class="srole">6-7 ELA Resource</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Armstrong, Tawana</span> <span class="srole">7th SS</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Boone, Jodie</span> <span class="srole">6th Math</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Brown, Kristin</span> <span class="srole">6-8 Band</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Burgstiner, Virginia</span> <span class="srole">6-8 Cotaught Math/Reading</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Caldwell, James</span> <span class="srole">6-8 Cotaught ELA/Reading/Science</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Cox, Susan</span> <span class="srole">7th ELA (49%)</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Galbreath, Brenda</span> <span class="srole">6-8 PLTW/STEM</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Gipson, Brianna</span> <span class="srole">6-8 PE</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Graves, Karen</span> <span class="srole">6-8 Read 180</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Hill, LeeAnn</span> <span class="srole">7th Math</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Hill, Stephen</span> <span class="srole">6th Science</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Hobby, Brenton</span> <span class="srole">6-8 Visual Arts</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Lee, Molly</span> <span class="srole">8th Physical Science</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Lubin, Christine</span> <span class="srole">7th Science</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Nazzrie, Destiny</span> <span class="srole">8th GA Studies</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Owens, Steve</span> <span class="srole">6-8 PE</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Phillips, Margaret</span> <span class="srole">6th SS</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Reece, Constance</span> <span class="srole">7th Reading</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Rollins, Kristie</span> <span class="srole">8th ELA</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Sapp, Kristin</span> <span class="srole">6-8 Math Resource/Cotaught</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Schwenk, Shelley</span> <span class="srole">8th Math</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Smith, Kristin</span> <span class="srole">8th Reading</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Spannuth, Heather</span> <span class="srole">6-8 Computer Science</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Stewart, Tammi</span> <span class="srole">6th ELA</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Teschendorf, Jennifer</span> <span class="srole">6th Reading</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Way, Vanne</span> <span class="srole">7th ELA (49%)</span></div></li>
+</ul>
+</div>
+</div>
+</div>
+
+<!-- ── MCA ── -->
+<div class="pcard" id="pcard-mca">
+<div class="pcard-hdr" onclick="togglePcard('mca',event)">
+<div class="pcard-hdr-left">
+<div class="pcard-role editable-name" data-id="pcard-mca" data-field="role">High School Principal — McIntosh County Academy</div>
+<div class="pcard-name editable-name" data-id="pcard-mca" data-field="name">Todd Willis</div>
+</div>
+<button class="pcard-toggle" id="pcard-mca-toggle">▸</button>
+</div>
+<button class="pcard-edit-btn" onclick="openModal('pcard-mca',event)">✏️</button>
+<div class="pcard-body" id="pcard-mca-body">
+<div class="pcard-section">
+<div class="pcard-section-label">Assistant Principals</div>
+<ul class="ap-list">
+<li><span class="sdot"></span><div><span class="sname editable-name" data-id="mca-ap1" data-field="name">Cole ____</span> <span class="srole">AP</span></div></li>
+</ul>
+</div>
+<div class="pcard-section">
+<div class="pcard-section-label">Athletics <span style="font-weight:normal;font-style:italic">(co-supervised w/ Dir. of Ops)</span></div>
+<ul class="ap-list">
+<li><span class="sdot"></span><div><span class="sname editable-name" data-id="mca-ath1" data-field="name">Bradley Warren</span> <span class="srole">Athletic Director <span class="dual">★ dual</span></span></div></li>
+</ul>
+</div>
+<div class="pcard-section">
+<div class="pcard-section-label">
+<span>Teachers — MCA (Course Assignments)</span>
+<button class="roster-toggle-btn" onclick="toggleRoster('mca-roster',this,event)">Show Roster</button>
+</div>
+<ul class="roster-list" id="mca-roster" style="display:none">
+<li><span class="sdot"></span><div><span class="sname">Nix</span> <span class="srole">Gr 9 Lit I</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Nix</span> <span class="srole">Gr 10 Lit II</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Lovin</span> <span class="srole">Gr 9 Lit I/Basic Read-Write</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Lovin</span> <span class="srole">Gr 10 Lit II</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Lovin</span> <span class="srole">Gr 9-12 Theatre</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Gore</span> <span class="srole">Gr 11 Lit III</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Gore</span> <span class="srole">Gr 12 Lit IV</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Gore</span> <span class="srole">Gr 9-12 Journalism/Yearbook</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Mayne</span> <span class="srole">Gr 9 Geometry</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Mayne</span> <span class="srole">Gr 11 Adv Algebra</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Mayne</span> <span class="srole">Gr 10 Algebra</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Transue</span> <span class="srole">Gr 12 Stats</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Transue</span> <span class="srole">Gr 11 Adv Algebra</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Stutler</span> <span class="srole">Gr 10 Foundations of Algebra</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Stutler</span> <span class="srole">Gr 10 Algebra</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Stutler</span> <span class="srole">Gr 9 Geometry</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Bussell</span> <span class="srole">Gr 10 Biology</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Bussell</span> <span class="srole">Gr 9 Environmental Science</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Smith</span> <span class="srole">Gr 10 Biology</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Smith</span> <span class="srole">Gr 12 Human Anatomy</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Smith</span> <span class="srole">Gr 12 Zoology</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Smith</span> <span class="srole">Gr 9-12 Study Skills</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Durant</span> <span class="srole">Gr 12 Forensics</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Durant</span> <span class="srole">Gr 11 Physical Science</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Carlyle</span> <span class="srole">Gr 9 World History</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Carlyle</span> <span class="srole">Gr 10 US History in Film</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Rosenbaum</span> <span class="srole">Gr 10 Psychology</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Rosenbaum</span> <span class="srole">Gr 11 DE US History</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Rosenbaum</span> <span class="srole">Gr 11-12 Local History</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Rosenbaum</span> <span class="srole">Gr 9-12 Study Skills</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Rand</span> <span class="srole">Gr 11 US History</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Rand</span> <span class="srole">Gr 12 Am Gov/Econ</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Rand</span> <span class="srole">Gr 10 US History in Film</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">**ONLINE**</span> <span class="srole">Gr 11-12 Spanish</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Hutcheson</span> <span class="srole">Gr 9-12 Rec Games</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Hutcheson</span> <span class="srole">Gr 9 Health &amp; PE</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Hutcheson</span> <span class="srole">Gr 9-12 Physical Conditioning</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Wetherington</span> <span class="srole">Gr 9-12 Rec Games</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Warren</span> <span class="srole">Gr 9-12 Physical Conditioning</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Warren</span> <span class="srole">Gr 9-12 Wt Training</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Angeles</span> <span class="srole">Gr 9-12 Study Skills</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Deverger</span> <span class="srole">Gr 9-12 Basic Ag</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Deverger</span> <span class="srole">Gr 9-12 Forest Science</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Deverger</span> <span class="srole">Gr 9-12 Ag Mechanics</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Deverger</span> <span class="srole">Gr 9-12 Nat Resources</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Deverger</span> <span class="srole">Gr 9-12 Logistics Fundamentals</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Todd</span> <span class="srole">Gr 9-12 Fisheries</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Todd</span> <span class="srole">Gr 9-12 Logistics I</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Todd</span> <span class="srole">Gr 9-12 Logistics II</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Stewart</span> <span class="srole">Gr 9-12 Intro Business</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Stewart</span> <span class="srole">Gr 9-12 Bus Communications</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Stewart</span> <span class="srole">Gr 9-12 Financial Literacy</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Stewart</span> <span class="srole">Gr 9-12 Business Tech</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Stewart</span> <span class="srole">Gr 9-12 Computer Science</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Fried</span> <span class="srole">Gr 9-12 Hospitality Essentials</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Fried</span> <span class="srole">Gr 9-12 Hospitality Management</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Fried</span> <span class="srole">Gr 9-12 Marketing</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Harper</span> <span class="srole">Gr 9-12 Music Appreciation</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Harper</span> <span class="srole">Gr 9-12 Jazz</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Harper</span> <span class="srole">Gr 9-12 Band</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Napfel</span> <span class="srole">Gr 9-12 Art I–IV</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">McLaine</span> <span class="srole">Gr 11-12 WBL</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Matheson</span> <span class="srole">Gr 9-12 SPED co-teaching</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Grovenor</span> <span class="srole">Gr 9-12 SPED co-teaching</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Kimbrough</span> <span class="srole">Gr 9-12 SPED co-teaching</span></div></li>
+<li><span class="sdot"></span><div><span class="sname">Palmer</span> <span class="srole">Gr 9-12 SPED co-teaching</span></div></li>
+<li><span class="sdot tbd"></span><div><span class="sname is-tbd">VACANCY</span> <span class="srole">Gr 9-12 SPED co-teaching</span></div></li>
+</ul>
+</div>
+</div>
+</div>
+
+</div><!-- end school-row -->
+</div><!-- end org-tree -->
+</div><!-- end canvas -->
+
+<!-- ══ EDIT MODAL ══ -->
+<div class="overlay" id="editOverlay">
+<div class="modal">
+<h2>Edit Position</h2>
+<label>Name / Person</label>
+<input type="text" id="modalName" placeholder="Full name (or leave blank for TBD)" />
+<label>Role / Title</label>
+<input type="text" id="modalRole" placeholder="Job title" />
+<div class="modal-actions">
+<button class="btn btn-cancel" onclick="closeModal()">Cancel</button>
+<button class="btn btn-gold btn-save" onclick="saveModal()">Save Changes</button>
+</div>
+</div>
+</div>
+
+<!-- ══ ADD POSITION MODAL ══ -->
+<div class="overlay" id="addOverlay">
+<div class="modal">
+<h2>➕ Add Position</h2>
+<label>Name</label>
+<input type="text" id="addName" placeholder="e.g. Smith, Jane" />
+<label>Role / Subject / Title</label>
+<input type="text" id="addRole" placeholder="e.g. Gifted Teacher, K-5" />
+<div style="margin-top:10px;font-family:Arial,sans-serif;font-size:.68rem;color:var(--muted)" id="addTarget"></div>
+<div class="modal-actions">
+<button class="btn btn-cancel" onclick="closeAddModal()">Cancel</button>
+<button class="btn btn-gold btn-save" onclick="saveAddModal()">Add Position</button>
+</div>
+</div>
+</div>
+
+<!-- ══ JOB DESCRIPTION DRAWER ══ -->
+<div class="jd-overlay" id="jdOverlay" onclick="closeJD()"></div>
+<div id="jd-drawer" role="dialog" aria-modal="true" aria-label="Job Description">
+  <div class="jd-hdr" id="jd-hdr"></div>
+  <div class="jd-toolbar">
+    <button class="jd-back-btn" onclick="closeJD()">&larr; Back to Org Chart</button>
+    <button class="jd-print-btn" onclick="printJD()">&#128438; Print Job Description</button>
+  </div>
+  <div class="jd-body" id="jd-body"></div>
+</div>
+<!-- JD PRINT ROOT (hidden until printing) -->
+<div id="jd-print-root" style="display:none;"></div>
+
+<script>
+// ── Storage ──
+const STORE_KEY = 'mcss-org-chart-v2';
+function loadData(){ try{ return JSON.parse(localStorage.getItem(STORE_KEY))||{}; }catch(e){ return {}; } }
+function saveData(d){
+try{ localStorage.setItem(STORE_KEY,JSON.stringify(d)); flashSaved(); }
+catch(e){ flashSaved('⚠ Save failed — edits will not persist','#b00020'); }
+}
+function setField(id,val){ const d=loadData(); d[id]=val; saveData(d); }
+function removeField(key){ const d=loadData(); delete d[key]; saveData(d); }
+function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
+function flashSaved(msg,color){
+const el=document.getElementById('saveIndicator');
+el.textContent=msg||'✓ Saved'; el.style.color=color||''; el.style.opacity='1';
+clearTimeout(el._t); el._t=setTimeout(()=>{ el.style.opacity='0'; },2200);
+}
+
+// ── Apply stored data on load ──
+// Order matters: render added rows first (so edits to them can apply),
+// then name/role edits, then deletions.
+// Name edits are stored under the element's data-id; role edits under data-id + '::role'.
+// Added rows are stored under 'added-<uid>' as JSON {list,name,role}; their later
+// edits live under 'row-<uid>' / 'row-<uid>::role'. Deletions are 'deleted-<entryId>'.
+function applyStoredData(){
+const data=loadData();
+// 1. Render added positions
+Object.entries(data).forEach(([key,value])=>{
+if(!key.startsWith('added-')) return;
+let rec; try{ rec=JSON.parse(value); }catch(e){ return; }
+addRowToList(rec.list,'row-'+key.slice(6),rec.name,rec.role);
+});
+// 2. Apply name/role edits
+Object.entries(data).forEach(([key,value])=>{
+if(key.startsWith('added-')||key.startsWith('deleted-')) return;
+const isRole=key.endsWith('::role');
+const id=isRole?key.slice(0,-6):key;
+const field=isRole?'role':'name';
+document.querySelectorAll(`[data-id="${id}"][data-field="${field}"]`).forEach(el=>{
+el.textContent=value;
+if(field==='name'){
+if(value&&!value.includes('TBD')&&!value.includes('____')){
+el.classList.remove('is-tbd');
+const li=el.closest('li');
+if(li){ const dot=li.querySelector('.sdot'); if(dot) dot.classList.remove('tbd'); }
+} else { el.classList.add('is-tbd'); }
+}
+});
+});
+// 3. Apply deletions
+Object.keys(data).forEach(key=>{
+if(!key.startsWith('deleted-')) return;
+const li=document.querySelector(`li[data-entry-id="${key.slice(8)}"]`);
+if(li) li.remove();
+});
+}
+
+// ── Edit mode ──
+let editMode=false;
+function toggleEditMode(){
+editMode=!editMode;
+document.body.classList.toggle('edit-mode',editMode);
+document.getElementById('editBanner').classList.toggle('show',editMode);
+document.getElementById('editToggleBtn').textContent=editMode?'✅ Editing…':'✏️ Edit Mode';
+}
+
+// ── Inline click-to-edit ──
+document.addEventListener('click',function(e){
+if(!editMode) return;
+const el=e.target.closest('.editable-name');
+if(!el||el.querySelector('input')) return;
+const original=el.textContent.trim();
+const id=el.dataset.id; const field=el.dataset.field;
+if(!id||!field) return;
+const input=document.createElement('input');
+input.className='name-input'; input.value=original;
+el.textContent=''; el.appendChild(input);
+input.focus(); input.select();
+let done=false;
+function commit(){
+if(done) return; done=true;
+const val=input.value.trim()||original;
+el.textContent=val;
+setField(field==='role'?id+'::role':id,val);
+if(field==='name'){
+if(val&&!val.includes('TBD')&&!val.includes('____')){
+el.classList.remove('is-tbd');
+const li=el.closest('li');
+if(li){ const dot=li.querySelector('.sdot'); if(dot) dot.classList.remove('tbd'); }
+} else { el.classList.add('is-tbd'); }
+}
+}
+input.addEventListener('blur',commit);
+input.addEventListener('keydown',function(ev){
+if(ev.key==='Enter'){ev.preventDefault();commit();}
+if(ev.key==='Escape'){done=true;el.textContent=original;}
+});
+});
+
+// ── Principal card expand/collapse ──
+function togglePcard(key,ev){
+// In edit mode, clicking a principal's name should edit it, not toggle the card
+if(editMode&&ev&&ev.target&&ev.target.closest('.editable-name')) return;
+const body=document.getElementById('pcard-'+key+'-body');
+const btn=document.getElementById('pcard-'+key+'-toggle');
+if(!body||!btn) return;
+const isOpen=body.classList.toggle('open');
+btn.textContent=isOpen?'▾':'▸';
+}
+function expandAllPcards(){
+document.querySelectorAll('.pcard-body').forEach(b=>b.classList.add('open'));
+document.querySelectorAll('.pcard-toggle').forEach(b=>b.textContent='▾');
+}
+function collapseAllPcards(){
+document.querySelectorAll('.pcard-body').forEach(b=>b.classList.remove('open'));
+document.querySelectorAll('.pcard-toggle').forEach(b=>b.textContent='▸');
+}
+
+// ── Roster show/hide ──
+function toggleRoster(id,btn,ev){
+if(ev) ev.stopPropagation();
+const list=document.getElementById(id);
+if(!list) return;
+const hidden=list.style.display==='none';
+list.style.display=hidden?'block':'none';
+if(btn) btn.textContent=hidden?'Hide Roster':'Show Roster';
+}
+
+// ── Edit modal ──
+let modalTargetId=null;
+function openModal(id,ev){
+if(ev) ev.stopPropagation();
+modalTargetId=id;
+const nameEl=document.querySelector(`[data-id="${id}"][data-field="name"]`);
+const roleEl=document.querySelector(`[data-id="${id}"][data-field="role"]`);
+document.getElementById('modalName').value=nameEl?nameEl.textContent.trim():'';
+document.getElementById('modalRole').value=roleEl?roleEl.textContent.trim():'';
+document.getElementById('editOverlay').classList.add('open');
+setTimeout(()=>document.getElementById('modalName').focus(),50);
+}
+function closeModal(){
+document.getElementById('editOverlay').classList.remove('open');
+modalTargetId=null;
+}
+function saveModal(){
+if(!modalTargetId){ closeModal(); return; }
+const name=document.getElementById('modalName').value.trim()||'Position — TBD';
+const role=document.getElementById('modalRole').value.trim();
+const nameEl=document.querySelector(`[data-id="${modalTargetId}"][data-field="name"]`);
+if(nameEl){
+nameEl.textContent=name;
+if(!name.includes('TBD')&&!name.includes('____')){
+nameEl.classList.remove('is-tbd');
+const li=nameEl.closest('li');
+if(li){ const dot=li.querySelector('.sdot'); if(dot) dot.classList.remove('tbd'); }
+} else { nameEl.classList.add('is-tbd'); }
+}
+setField(modalTargetId,name);
+if(role){
+const roleEl=document.querySelector(`[data-id="${modalTargetId}"][data-field="role"]`);
+if(roleEl) roleEl.textContent=role;
+setField(modalTargetId+'::role',role);
+}
+closeModal();
+}
+// Click outside modal to close
+document.getElementById('editOverlay').addEventListener('click',function(e){
+if(e.target===this) closeModal();
+});
+// Escape closes either modal; Enter in an input saves the open one
+document.addEventListener('keydown',function(e){
+const editOpen=document.getElementById('editOverlay').classList.contains('open');
+const addOpen=document.getElementById('addOverlay').classList.contains('open');
+if(!editOpen&&!addOpen) return;
+if(e.key==='Escape'){ if(editOpen) closeModal(); if(addOpen) closeAddModal(); }
+if(e.key==='Enter'&&e.target.tagName==='INPUT'){ if(editOpen) saveModal(); if(addOpen) saveAddModal(); }
+});
+
+// ── Print ──
+let printSnapshot=null;
+function printChart(){
+printSnapshot={
+pcards:[...document.querySelectorAll('.pcard-body')].map(b=>b.classList.contains('open')),
+rosters:[...document.querySelectorAll('.roster-list')].map(l=>l.style.display)
+};
+expandAllPcards();
+document.querySelectorAll('.roster-list').forEach(l=>l.style.display='block');
+document.querySelectorAll('.roster-toggle-btn').forEach(b=>b.textContent='Hide Roster');
+setTimeout(()=>window.print(),150);
+}
+window.addEventListener('afterprint',function(){
+if(!printSnapshot) return;
+document.querySelectorAll('.pcard-body').forEach((b,i)=>b.classList.toggle('open',!!printSnapshot.pcards[i]));
+document.querySelectorAll('.pcard-toggle').forEach((t,i)=>t.textContent=printSnapshot.pcards[i]?'▾':'▸');
+document.querySelectorAll('.roster-list').forEach((l,i)=>{
+l.style.display=printSnapshot.rosters[i];
+});
+document.querySelectorAll('.roster-toggle-btn').forEach((b,i)=>{
+b.textContent=printSnapshot.rosters[i]==='none'?'Show Roster':'Hide Roster';
+});
+printSnapshot=null;
+});
+
+// ── Make role labels and roster entries editable ──
+// Runs once at load, BEFORE applyStoredData.
+// 1. Staff/AP role labels get the same data-id as the adjacent name, with data-field='role'.
+//    Any ★ dual badge is moved outside the editable span so editing the role can't delete it.
+// 2. Roster rows get generated IDs based on list ID + row position (e.g. tges-roster-r0).
+//    Note: roster edits are tied to row order, so don't reorder roster <li> rows in the HTML
+//    or saved edits will land on the wrong row.
+function initEditables(){
+// Give every list a stable ID (roster lists already have one)
+document.querySelectorAll('.staff-list,.ap-list,.roster-list').forEach((list,i)=>{
+if(!list.id) list.id='list-'+i;
+});
+// Staff-list and ap-list role labels
+document.querySelectorAll('.staff-list .srole, .ap-list .srole').forEach(role=>{
+if(role.dataset.id) return;
+const nameEl=role.parentElement.querySelector('.sname[data-id]');
+if(!nameEl) return;
+const dual=role.querySelector('.dual');
+if(dual){ role.after(document.createTextNode(' ')); role.after(dual); }
+role.dataset.id=nameEl.dataset.id;
+role.dataset.field='role';
+role.classList.add('editable-name');
+});
+// Roster rows: teacher names and course assignments
+document.querySelectorAll('.roster-list').forEach(list=>{
+list.querySelectorAll('li').forEach((li,i)=>{
+const id=`${list.id}-r${i}`;
+const nameEl=li.querySelector('.sname');
+const roleEl=li.querySelector('.srole');
+if(nameEl&&!nameEl.dataset.id){
+nameEl.dataset.id=id; nameEl.dataset.field='name'; nameEl.classList.add('editable-name');
+}
+if(roleEl&&!roleEl.dataset.id){
+roleEl.dataset.id=id; roleEl.dataset.field='role'; roleEl.classList.add('editable-name');
+}
+});
+});
+// Entry IDs + delete buttons on every row; + Add Position button under every list
+document.querySelectorAll('.staff-list,.ap-list,.roster-list').forEach(list=>{
+list.querySelectorAll('li').forEach(li=>{
+const nameEl=li.querySelector('.sname[data-id]');
+if(nameEl&&!li.dataset.entryId) li.dataset.entryId=nameEl.dataset.id;
+attachDelBtn(li);
+});
+const btn=document.createElement('button');
+btn.type='button'; btn.className='add-position-btn no-print';
+btn.textContent='+ Add Position';
+btn.dataset.list=list.id;
+btn.addEventListener('click',function(e){ e.stopPropagation(); openAddModal(list.id); });
+list.after(btn);
+});
+}
+
+function attachDelBtn(li){
+if(li.querySelector('.del-btn')) return;
+const b=document.createElement('button');
+b.type='button'; b.className='del-btn no-print'; b.title='Remove this position';
+b.textContent='✕';
+li.appendChild(b);
+}
+
+// ── Add a row (used for new positions, at creation and on reload) ──
+function addRowToList(listId,rowId,name,role){
+const list=document.getElementById(listId);
+if(!list) return;
+if(list.querySelector(`li[data-entry-id="${rowId}"]`)) return; // already present (e.g. baked-in copy)
+const li=document.createElement('li');
+li.dataset.entryId=rowId;
+const tbd=!name||name.includes('TBD')||name.includes('____');
+const dot=document.createElement('span'); dot.className='sdot'+(tbd?' tbd':'');
+const wrap=document.createElement('div');
+const sname=document.createElement('span');
+sname.className='sname editable-name'+(tbd?' is-tbd':'');
+sname.dataset.id=rowId; sname.dataset.field='name';
+sname.textContent=name||'TBD';
+wrap.appendChild(sname);
+if(role){
+wrap.appendChild(document.createTextNode(' '));
+const srole=document.createElement('span');
+srole.className='srole editable-name';
+srole.dataset.id=rowId; srole.dataset.field='role';
+srole.textContent=role;
+wrap.appendChild(srole);
+}
+li.appendChild(dot); li.appendChild(wrap);
+attachDelBtn(li);
+list.appendChild(li);
+}
+
+// ── Delete rows (delegated) ──
+document.addEventListener('click',function(e){
+const btn=e.target.closest('.del-btn');
+if(!btn||!editMode) return;
+e.stopPropagation();
+const li=btn.closest('li');
+if(!li) return;
+const eid=li.dataset.entryId;
+const who=(li.querySelector('.sname')||{}).textContent||'this position';
+if(!confirm('Remove "'+who.trim()+'" from the chart?')) return;
+if(eid&&eid.startsWith('row-')){
+// Added row: erase its record and any edits to it
+removeField('added-'+eid.slice(4));
+removeField(eid);
+removeField(eid+'::role');
+} else if(eid){
+// Original row: mark deleted so it stays gone on reload
+setField('deleted-'+eid,'1');
+}
+li.remove();
+updateCounts();
+});
+
+// ── Roster counts (auto-updated on load, add, and delete) ──
+function updateCounts(){
+document.querySelectorAll('.roster-list').forEach(list=>{
+const section=list.closest('.pcard-section,.section');
+if(!section) return;
+// Target the inner span specifically; writing to the container div would wipe out the toggle button
+const label=section.querySelector('.pcard-section-label > span')||section.querySelector('.section-label');
+if(!label||!/\(\d+\)/.test(label.textContent)) return;
+label.textContent=label.textContent.replace(/\(\d+\)/,'('+list.querySelectorAll('li').length+')');
+});
+}
+
+// ── Add Position modal ──
+let addTargetList=null;
+function openAddModal(listId){
+addTargetList=listId;
+document.getElementById('addName').value='';
+document.getElementById('addRole').value='';
+let labelText='';
+const list=document.getElementById(listId);
+if(list){
+const section=list.closest('.pcard-section,.section');
+if(section){
+const label=section.querySelector('.pcard-section-label span,.pcard-section-label,.section-label');
+if(label) labelText=label.textContent.trim();
+}
+}
+document.getElementById('addTarget').textContent=labelText?('Adding to: '+labelText):'';
+document.getElementById('addOverlay').classList.add('open');
+setTimeout(()=>document.getElementById('addName').focus(),50);
+}
+function closeAddModal(){
+document.getElementById('addOverlay').classList.remove('open');
+addTargetList=null;
+}
+function saveAddModal(){
+if(!addTargetList){ closeAddModal(); return; }
+const name=document.getElementById('addName').value.trim()||'TBD';
+const role=document.getElementById('addRole').value.trim();
+const u=uid();
+setField('added-'+u,JSON.stringify({list:addTargetList,name:name,role:role}));
+addRowToList(addTargetList,'row-'+u,name,role);
+updateCounts();
+closeAddModal();
+}
+document.getElementById('addOverlay').addEventListener('click',function(e){
+if(e.target===this) closeAddModal();
+});
+
+// ── Edit portability: export / import / reset / bake ──
+function downloadBlob(content,filename,mime){
+const blob=new Blob([content],{type:mime});
+const a=document.createElement('a');
+a.href=URL.createObjectURL(blob); a.download=filename;
+document.body.appendChild(a); a.click(); a.remove();
+setTimeout(()=>URL.revokeObjectURL(a.href),5000);
+}
+
+function exportEdits(){
+const d=loadData();
+if(!Object.keys(d).length){ alert('No saved edits to export yet.'); return; }
+downloadBlob(JSON.stringify(d,null,2),'mcss-org-chart-edits.json','application/json');
+}
+
+document.getElementById('importFile').addEventListener('change',function(){
+const file=this.files[0]; this.value='';
+if(!file) return;
+const reader=new FileReader();
+reader.onload=function(){
+let d; try{ d=JSON.parse(reader.result); }catch(e){ alert('That file is not valid edits JSON.'); return; }
+if(typeof d!=='object'||d===null||Array.isArray(d)){ alert('That file is not a valid edits export.'); return; }
+if(!confirm('Importing will replace your current saved edits with the ones in this file. Continue?')) return;
+try{ localStorage.setItem(STORE_KEY,JSON.stringify(d)); }catch(e){ alert('Import failed: could not save to this browser.'); return; }
+location.reload();
+};
+reader.readAsText(file);
+});
+
+function resetAllEdits(){
+if(!confirm('Erase ALL saved edits and restore the original chart? This cannot be undone. (Tip: Export Edits first if you might want them back.)')) return;
+try{ localStorage.removeItem(STORE_KEY); }catch(e){}
+location.reload();
+}
+
+// Produce a standalone index.html with every current edit baked into the markup.
+// Commit the downloaded file to the repo and the live page matches what you see here.
+function downloadBakedChart(){
+const active=document.activeElement;
+if(active&&active.classList&&active.classList.contains('name-input')) active.blur(); // commit in-progress edit
+const clone=document.documentElement.cloneNode(true);
+// Strip runtime edit UI; it is rebuilt by initEditables on load
+clone.querySelectorAll('.del-btn,.add-position-btn,.name-input').forEach(el=>el.remove());
+// Return chrome to its default state
+const body=clone.querySelector('body'); if(body) body.classList.remove('edit-mode');
+const banner=clone.querySelector('#editBanner'); if(banner) banner.classList.remove('show');
+const tbtn=clone.querySelector('#editToggleBtn'); if(tbtn) tbtn.textContent='✏️ Edit Mode';
+clone.querySelectorAll('#editOverlay,#addOverlay').forEach(o=>o.classList.remove('open'));
+const ind=clone.querySelector('#saveIndicator'); if(ind){ ind.textContent=''; ind.style.opacity='0'; }
+// Default collapsed state for committed copies
+clone.querySelectorAll('.pcard-body').forEach(b=>b.classList.remove('open'));
+clone.querySelectorAll('.pcard-toggle').forEach(t=>t.textContent='▸');
+clone.querySelectorAll('.roster-list').forEach(l=>l.style.display='none');
+clone.querySelectorAll('.roster-toggle-btn').forEach(b=>b.textContent='Show Roster');
+downloadBlob('<!DOCTYPE html>\n'+clone.outerHTML,'index.html','text/html');
+flashSaved('✓ Downloaded — commit this file to GitHub');
+}
+
+// ── Init ──
+initEditables();
+applyStoredData();
+updateCounts();
+
+// ══════════════════════════════════════════════════════════════════
+// JOB DESCRIPTION DRAWER
+// ══════════════════════════════════════════════════════════════════
+const JD_DATA = {
+
+  curriculum: {
+    title: 'Curriculum Director', secondary: null, incumbent: 'Currently: Sandra Ryals',
+    chips: ['Central Office','Cabinet Level','12-Month Position','Certified / Leadership'], fundingChip: null,
+    reportsTo: 'Superintendent of Schools',
+    directReports: [
+      { label: 'Academic Coaches', sub: 'Alicia Rosenbaum, Christina Ricker, Amanda Deverger' },
+      { label: 'MTSS Coordinator', sub: 'Melissa Francisco' },
+      { label: 'Accountability', sub: 'District accountability systems' },
+      { label: 'MTSS District Framework', sub: 'Tier I, II, and III coordination' },
+    ],
+    summary: 'The Curriculum Director serves as the district\'s chief instructional officer, responsible for designing, implementing, and monitoring a coherent, standards-aligned instructional program across all three campuses. This role leads the academic coaching team, oversees the Multi-Tiered System of Supports framework, and coordinates district accountability functions.',
+    duties: [
+      { label: 'Curriculum and Instruction', items: [
+        'Lead the development, alignment, and implementation of a guaranteed and viable curriculum across all grade levels and content areas.',
+        'Direct the district\'s backwards design process: teachers develop the unit assessment before lessons are planned, then submit assessment and unit plan together for review before instruction begins.',
+        'Oversee the Unit Planning Dashboard as the primary tool for monitoring teacher-level implementation.',
+        'Calibrate Visible Learning expectations consistently across all three campuses.',
+        'Enforce the co-teaching unit submission standard: a co-taught unit plan without embedded Specially Designed Instruction is an incomplete submission.',
+        'Lead district-wide Test Talks and PLC structures focused on grade-level goals as shared team responsibility.',
+        'Oversee the selection, adoption, and fidelity of core instructional materials aligned to Georgia Standards of Excellence.',
+      ]},
+      { label: 'Academic Coaching and Leadership', items: [
+        'Directly supervise and support Academic Coaches at all three campuses.',
+        'Build coaching capacity by modeling instructional practice and co-facilitating PLCs.',
+        'Coordinate with building principals to align coaching priorities to school-level goals.',
+      ]},
+      { label: 'MTSS and Student Support', items: [
+        'Oversee the district\'s MTSS framework, ensuring fidelity of Tier I instruction and coordinated Tier II and III interventions.',
+        'Supervise the MTSS Coordinator and provide direction on screening, intervention data, and progress monitoring.',
+        'Collaborate with Special Education and Federal Programs to support identified and at-risk students.',
+      ]},
+      { label: 'Accountability and Data Systems',
+        callout: { type: 'navy', text: '<strong>District Monitoring Role:</strong> The Curriculum Director executes the district\'s monitoring function over building principals, leading monthly instructional reviews focused on evidence, actions, and outcomes.' },
+        items: [
+        'Execute the district\'s monitoring role over building principals and lead monthly principal instructional reviews.',
+        'Maintain Year One focus on the five instructional priorities.',
+        'Oversee district accountability functions including Georgia Milestones data analysis and continuous improvement planning.',
+        'Lead the disaggregation and interpretation of student performance data across campuses and subgroups.',
+        'Support the Superintendent in board reports and state and federal accountability submissions.',
+      ]},
+      { label: 'Professional Learning and Culture', items: [
+        'Design and deliver district-wide professional development aligned to instructional priorities.',
+        'Foster a culture of collaborative inquiry, high expectations, and continuous improvement.',
+        'Serve as a thought partner to principals, academic coaches, and the Superintendent.',
+      ]},
+    ],
+    qualRequired: ['Valid Georgia PSC certificate in a leadership or curriculum-related field','Master\'s degree in education, curriculum, or a related field','Minimum five years of successful classroom teaching experience','Minimum three years of instructional leadership experience','Demonstrated knowledge of GSE and the Georgia Milestones Assessment System','Experience leading PLC structures and data-driven instructional improvement'],
+    qualPreferred: ['Specialist or doctoral degree in curriculum, instruction, or educational leadership','Experience with MTSS frameworks and tiered intervention systems','Familiarity with Visible Learning research','Background in curriculum mapping, backwards design, and instructional coaching','Prior experience in a rural or small district central office','Experience with GaDOE accountability systems, CCRPI, and federal compliance'],
+    ksaLeft: ['Deep knowledge of standards-based curriculum design and instructional best practices','Ability to analyze and interpret complex student performance data','Strong written and verbal communication skills for diverse audiences','Capacity to lead adult learners through change and professional growth'],
+    ksaRight: ['Skill in building collaborative relationships with principals, teachers, and cabinet peers','Organizational ability to manage multiple priorities simultaneously','Commitment to equity, high expectations, and student-centered decision-making','Integrity and discretion in handling sensitive personnel and student matters'],
+    working: ['Full-time, 12-month position based at the central office with regular travel to all three campuses.','Attendance at evening board meetings, community events, and professional conferences required.','Physical demands consistent with a typical school and office environment.','Performance evaluated annually by the Superintendent using district leadership evaluation criteria.'],
+  },
+
+  operations: {
+    title: 'Director of Operations', secondary: 'Title IX Coordinator', incumbent: 'Currently: Scott Brooker',
+    chips: ['Central Office','Cabinet Level','12-Month Position','Newly Established Role'], fundingChip: null,
+    reportsTo: 'Superintendent of Schools',
+    directReports: [
+      { label: 'Student Services', sub: 'Leslie Poppell, Student Svcs. Coord.' },
+      { label: 'Nutrition', sub: 'Rose Harrison, Dir. · Campus Leads' },
+      { label: 'Transportation', sub: 'Shannon Sherba, Trans. Director · Staff' },
+      { label: 'Facilities & Maintenance', sub: 'Heath Mixon, Maintenance Dir. · Staff' },
+      { label: 'Human Resources', sub: 'Viette Hunter (½-time, dual role) · Elsie Lane' },
+      { label: 'Title IX Compliance', sub: 'District-wide coordination' },
+    ],
+    summary: 'The Director of Operations is a newly established cabinet-level position responsible for the management and coordination of all non-instructional operational functions across McIntosh County School System, including student services, nutrition, transportation, facilities and maintenance, and human resources. The Director of Operations also serves as the district\'s designated Title IX Coordinator.',
+    duties: [
+      { label: 'Operational Leadership', items: [
+        'Provide unified oversight of all operational departments with clear expectations and accountability structures.',
+        'Build systems that identify and address operational concerns before they escalate.',
+        'Serve as the primary operational point of contact for the Superintendent.',
+        'Coordinate operational planning across departments so campuses receive consistent support.',
+        'Monitor compliance with applicable federal, state, and local regulations across all operational areas.',
+      ]},
+      { label: 'Student Services', items: [
+        'Oversee the Student Services Coordinator, including alternative school placement, tribunal coordination, Pre-K, and testing processes.',
+        'Ensure student services operations align with district policy and due process requirements.',
+      ]},
+      { label: 'Nutrition', items: [
+        'Oversee the nutrition program, including USDA and GaDOE child nutrition compliance and program integrity.',
+        'Support the Nutrition Director in managing campus leads, staffing, and menu planning.',
+        'Monitor meal participation and ensure equitable access to nutrition services.',
+      ]},
+      { label: 'Transportation', items: [
+        'Oversee route management, driver hiring and training, vehicle maintenance, and GaDOE transportation compliance.',
+        'Support the Transportation Director in daily operations and safety protocols.',
+        'Ensure transportation is delivered safely, efficiently, and in alignment with scheduling needs.',
+      ]},
+      { label: 'Facilities and Maintenance', items: [
+        'Oversee facilities and maintenance across all three campuses to ensure safe, clean learning environments.',
+        'Supervise the Maintenance Director and staff, managing work orders and preventive maintenance.',
+        'Coordinate on capital improvement, ESPLOST implementation, and Local Facilities Plan obligations.',
+        'Ensure compliance with fire safety, health, accessibility, and building code requirements.',
+      ]},
+      { label: 'Human Resources', items: [
+        'Oversee HR functions with half-time support from Viette Hunter, whose role is shared with Finance.',
+        'Direct onboarding, records management, certification tracking, leave administration, and policy compliance.',
+        'Oversee student information system functions managed by Elsie Lane.',
+        'Support the Superintendent in personnel processes and hiring coordination.',
+        'Serve as a resource on HR policy, employee relations, and Georgia PSC certification.',
+      ]},
+      { label: 'Title IX Coordination',
+        callout: { type: 'gold', text: '<strong>Designated Title IX Coordinator:</strong> The Director of Operations serves as the district\'s Title IX Coordinator under 34 C.F.R. Part 106, a formal legal designation carrying specific compliance obligations.' },
+        items: [
+        'Serve as the designated Title IX Coordinator across all programs, activities, and employment practices.',
+        'Receive, track, and respond to all Title IX complaints involving students or employees.',
+        'Coordinate and oversee Title IX investigations under the district\'s adopted grievance procedures.',
+        'Develop, deliver, and maintain records of annual Title IX training.',
+        'Review and update Title IX policies, notices, and procedures for ongoing compliance.',
+        'Maintain required records and ensure the Title IX notice of nondiscrimination is posted.',
+        'Serve as the primary district contact for GaDOE and OCR on Title IX matters.',
+      ]},
+    ],
+    qualRequired: ['Bachelor\'s degree in education, business administration, public administration, or a related field','Minimum five years of progressive leadership in school district operations or a related public sector field','Demonstrated experience managing multiple operational departments simultaneously','Knowledge of federal and state regulations applicable to school district operations','Experience with Title IX compliance or willingness to complete required training upon hire','Strong organizational, communication, and problem-solving skills'],
+    qualPreferred: ['Master\'s degree in educational leadership, business administration, or a related field','Valid Georgia PSC certificate in educational leadership or a related area','Prior experience as a Title IX Coordinator or deputy coordinator','Experience with ESPLOST project management and Local Facilities Plan compliance','Familiarity with GaDOE reporting systems','Background in human resources administration in a public school or government setting'],
+    ksaLeft: ['Broad knowledge of facilities, transportation, nutrition, and HR operational systems','Understanding of Title IX law, regulations, and grievance procedures','Ability to build reliable systems that reduce reactive problem-solving','Skill in supervising and developing department-level directors and staff'],
+    ksaRight: ['Strong communication skills for staff, families, and regulatory agencies','Ability to manage budgets, contracts, and vendor relationships across departments','Discretion and sound judgment in handling sensitive personnel, legal, and student matters','Commitment to safe, equitable, well-functioning environments for all students and staff'],
+    working: ['Full-time, 12-month position based at the central office with regular travel to campuses and operational sites.','On-call availability required for facilities emergencies and other urgent operational matters.','Attendance at evening board meetings, community events, and required training.','Physical demands include site visits and work in both office and field environments.','Performance evaluated annually by the Superintendent.'],
+  },
+
+  sped: {
+    title: 'Special Education Director', secondary: null, incumbent: 'Currently: Dr. Rachel Carlyle',
+    chips: ['Central Office','Cabinet Level','12-Month Position','Certified / Leadership'], fundingChip: null,
+    reportsTo: 'Superintendent of Schools',
+    directReports: [
+      { label: 'Special Education Staff', sub: 'Campus SpEd teachers and paraprofessionals' },
+      { label: 'Nurses', sub: 'Campus nursing staff, all three schools' },
+      { label: 'School Psychologist', sub: 'Stephanie Largent' },
+      { label: 'Gifted Program', sub: 'District-wide gifted services' },
+      { label: 'SpEd Secretary', sub: 'Tina Thomas (dual role)' },
+    ],
+    summary: 'The Special Education Director provides district-wide leadership for all programs serving students with disabilities, gifted students, and the nursing program, ensuring compliance with IDEA, Section 504, and GaDOE requirements. This role partners closely with the Curriculum Director on co-teaching, Specially Designed Instruction, and MTSS implementation.',
+    duties: [
+      { label: 'Special Education Program Leadership', items: [
+        'Provide district-wide leadership ensuring a free appropriate public education in the least restrictive environment.',
+        'Oversee the development, implementation, and annual review of IEPs across all campuses.',
+        'Supervise and support special education teachers and paraprofessionals.',
+        'Ensure a student\'s IEP defines the pathway to grade-level standards, not an exemption from them.',
+        'Coordinate eligibility determinations, evaluation timelines, and procedural safeguards under IDEA.',
+      ]},
+      { label: 'Co-Teaching and Specially Designed Instruction', items: [
+        'Partner with the Curriculum Director to implement the co-teaching model with fidelity.',
+        'Ensure SDI is embedded within co-taught unit plans before district review.',
+        'Monitor co-taught classrooms for active engagement of both teachers and delivery of small-group intervention.',
+        'Develop professional learning on co-teaching, SDI strategies, and progress monitoring.',
+      ]},
+      { label: 'MTSS Collaboration', items: [
+        'Collaborate with the Curriculum Director and MTSS Coordinator so special education and MTSS operate in coordination.',
+        'Guide school MTSS teams on the distinction between Tier II and Tier III and the role of evaluation.',
+      ]},
+      { label: 'Compliance and Federal Reporting',
+        callout: { type: 'navy', text: '<strong>Federal Compliance Obligation:</strong> This role carries direct responsibility for IDEA compliance, including Child Find, evaluation timelines, IEP safeguards, and GaDOE special education reporting.' },
+        items: [
+        'Ensure district-wide compliance with IDEA, Section 504, and GaDOE special education regulations.',
+        'Oversee required GaDOE special education data submissions.',
+        'Maintain accurate special education records in compliance with FERPA.',
+        'Coordinate with legal counsel and the Superintendent on due process and placement disputes.',
+        'Oversee Section 504 plans and processes district-wide.',
+      ]},
+      { label: 'Gifted Education', items: [
+        'Oversee the gifted program to meet GaDOE identification and service requirements.',
+        'Monitor gifted implementation, including teacher endorsement requirements.',
+        'Coordinate gifted referral and evaluation for timely, equitable identification.',
+      ]},
+      { label: 'School Nursing and Student Health', items: [
+        'Provide administrative oversight of the nursing program in compliance with Georgia school health regulations.',
+        'Coordinate health-related supports and integrate medical needs into IEP and 504 documentation.',
+        'Serve as point of contact for communicable disease, medication, and emergency health protocols.',
+      ]},
+      { label: 'Administrative Support', items: [
+        'Direct Tina Thomas, who serves as SpEd administrative assistant on a dual-role basis with Technology.',
+        'Oversee Stephanie Largent, School Psychologist, including caseload and timeline compliance.',
+      ]},
+    ],
+    qualRequired: ['Valid Georgia PSC certificate in Special Education or Educational Leadership','Master\'s degree in special education, educational leadership, or a related field','Minimum five years of experience in special education','Demonstrated knowledge of IDEA, Section 504, Child Find, and IEP development','Experience supervising special education staff across multiple sites','Knowledge of co-teaching models and Specially Designed Instruction'],
+    qualPreferred: ['Specialist or doctoral degree in special education or educational leadership','Prior experience as a district-level special education director','Experience with GaDOE special education data systems and federal reporting','Background in gifted education program administration','Familiarity with MTSS and the intersection of intervention and eligibility','Experience managing due process or compliance monitoring reviews'],
+    ksaLeft: ['Deep knowledge of federal and state special education law and safeguards','Understanding of co-teaching, SDI, and integration with general education','Ability to maintain compliant IEP and 504 processes across campuses','Skill in supervising special education teachers, paraprofessionals, and related staff'],
+    ksaRight: ['Strong collaborative skills with the Curriculum Director, principals, and cabinet peers','Ability to communicate clearly with families, advocates, and legal representatives','Commitment to access, equity, and high expectations for every student with a disability','Discretion and sound judgment in due process, personnel, and confidential matters'],
+    working: ['Full-time, 12-month position based at the central office with regular travel to campuses.','Attendance at IEP meetings, eligibility conferences, due process proceedings, and GaDOE reviews.','Attendance at evening board meetings and required professional conferences.','Physical demands consistent with a typical school and office environment.','Performance evaluated annually by the Superintendent.'],
+  },
+
+  federal: {
+    title: 'Federal Programs Director', secondary: null, incumbent: 'Currently: Ms. Cassandra Noble',
+    chips: ['Central Office','Cabinet Level','12-Month Position','Certified / Leadership'], fundingChip: '49% Federal Programs Funded',
+    reportsTo: 'Superintendent of Schools',
+    directReports: [
+      { label: 'Title I', sub: 'Improving Basic Programs' },
+      { label: 'Title II', sub: 'Teacher and Principal Quality' },
+      { label: 'Title III', sub: 'English Language Acquisition' },
+      { label: 'Title IV', sub: 'Student Support and Enrichment' },
+      { label: 'Migrant Education', sub: 'MEP services and coordination' },
+      { label: 'Homeless / McKinney-Vento', sub: 'Identification, services, liaison' },
+      { label: 'Consolidated Application', sub: 'GaDOE federal grant management' },
+      { label: 'Parent Resource Coordinator', sub: 'Corbin Poppell' },
+    ],
+    summary: 'The Federal Programs Director is responsible for the planning, implementation, monitoring, and compliance of all federally funded programs, managing the Consolidated Application and overseeing Title I–IV, Migrant Education, and Homeless/McKinney-Vento programs under ESSA. This position is 49% federally funded through the programs it administers.',
+    duties: [
+      { label: 'Federal Grant Management and Compliance',
+        callout: { type: 'navy', text: '<strong>Federal Compliance Obligation:</strong> This role carries direct responsibility for ESSA compliance and stewardship of all federal education funds. Misuse or inadequate documentation carries significant legal and financial consequences.' },
+        items: [
+        'Manage the Consolidated Application process through the GaDOE grants management system.',
+        'Ensure all federal programs comply with ESSA, federal regulations, and GaDOE guidelines.',
+        'Maintain complete documentation including budgets, expenditures, plans, and certifications.',
+        'Coordinate federal program audits and monitoring visits as the district\'s primary contact.',
+        'Monitor federal budgets with the CFO to ensure allowable, allocable expenditures.',
+        'Complete required stakeholder consultation prior to Consolidated Application submission.',
+      ]},
+      { label: 'Title Programs (I, II, III, IV)', items: [
+        'Title I: Ensure funds supplement and target students with greatest academic need; document family engagement and compacts.',
+        'Title II: Ensure funds support professional development and recruitment and retention of effective staff.',
+        'Title III: Ensure EL identification, placement, progress monitoring, and parent notification compliance.',
+        'Title IV: Ensure funds support well-rounded education, safe and healthy students, and technology across allowable categories.',
+      ]},
+      { label: 'Migrant Education and Homeless/McKinney-Vento', items: [
+        'Administer the Migrant Education Program including identification, recruitment, and GaDOE data submission.',
+        'Maintain MEP documentation including Certificates of Eligibility and service records.',
+        'Serve as or supervise the McKinney-Vento liaison ensuring immediate enrollment and full access.',
+        'Protect transportation, school stability, and dispute resolution rights of homeless students.',
+        'Coordinate support services connecting families with community resources.',
+      ]},
+      { label: 'Parent and Family Engagement', items: [
+        'Oversee the Parent Resource Coordinator, Corbin Poppell, coordinating engagement across federal programs.',
+        'Maintain district and building family engagement policies and signed school-parent compacts.',
+        'Coordinate family engagement events and resources across all three campuses.',
+      ]},
+      { label: 'Cross-Departmental Coordination', items: [
+        'Integrate federal funds with district-funded programs to avoid duplication and maximize impact.',
+        'Coordinate with the CFO on federal budget development, carryover, and audit preparation.',
+        'Guide principals and staff on federal program requirements and allowable uses.',
+        'Support the Superintendent in federal program reports and board presentations.',
+      ]},
+    ],
+    qualRequired: ['Valid Georgia PSC certificate in educational leadership or a related field','Bachelor\'s degree in education, public administration, or a related field','Minimum three years in federal programs administration or grant management','Demonstrated knowledge of ESSA, federal grant compliance, and GaDOE guidelines','Experience with federal budget management and grant reporting','Strong organizational skills and attention to compliance record-keeping'],
+    qualPreferred: ['Master\'s degree in educational leadership or public administration','Prior experience as a federal programs coordinator or director','Familiarity with GaDOE grants management and the Consolidated Application','Experience administering MEP and McKinney-Vento requirements','Background in parent and family engagement program design','Experience coordinating federal monitoring visits or compliance findings'],
+    ksaLeft: ['Thorough knowledge of ESSA, federal program requirements, and GaDOE compliance','Understanding of federal cost principles and supplement-not-supplant requirements','Ability to manage multiple grants and timelines with accuracy','Skill in interpreting and applying complex federal and state regulations'],
+    ksaRight: ['Strong communication skills for grant applications and compliance reports','Ability to build relationships across departments and external agencies','Commitment to ensuring federal resources reach students with greatest need','Discretion in managing sensitive student data and financial records'],
+    working: ['Full-time, 12-month position based at the central office with travel to campuses.','Attendance at GaDOE federal program training and monitoring visits.','Attendance at evening board meetings and family engagement activities.','Physical demands consistent with a typical school and office environment.','Position is 49% federally funded; continuation subject to annual federal funding availability.','Performance evaluated annually by the Superintendent.'],
+  },
+
+  technology: {
+    title: 'Technology Director', secondary: null, incumbent: 'Currently: Rusty Boone',
+    chips: ['Central Office','Cabinet Level','12-Month Position'], fundingChip: null,
+    reportsTo: 'Superintendent of Schools',
+    directReports: [
+      { label: 'Tech Support — TGES', sub: 'Ken Hyman' },
+      { label: 'Tech Support — MCMS', sub: 'Chris Ours' },
+      { label: 'Tech Support — MCA', sub: 'Susie Moody' },
+      { label: 'Technology Secretary', sub: 'Tina Thomas (dual role)' },
+    ],
+    summary: 'The Technology Director is responsible for the planning, implementation, maintenance, and security of all technology infrastructure across the district, including network, devices, cybersecurity, physical security systems, Google Workspace, VoIP, and the student information system. This role also carries forward-facing responsibility for enabling safe, appropriate AI access for staff.',
+    duties: [
+      { label: 'Network Infrastructure and Systems', items: [
+        'Plan, implement, and maintain network infrastructure across all three campuses.',
+        'Monitor network performance and manage ISP and vendor relationships.',
+        'Oversee technology procurement, inventory, and lifecycle planning.',
+        'Coordinate with the CFO on technology budgeting and ESPLOST-funded projects.',
+      ]},
+      { label: 'Device Management', items: [
+        'Manage device deployment, configuration, and maintenance for students and staff.',
+        'Administer the MDM platform with content filtering and security policies.',
+        'Maintain a device refresh cycle and repair process that minimizes downtime.',
+        'Coordinate device distribution and collection with accurate assignment records.',
+      ]},
+      { label: 'Google Workspace Administration', items: [
+        'Serve as primary Google Workspace for Education administrator.',
+        'Configure policies aligned with appropriate use and FERPA compliance.',
+        'Evaluate third-party app integrations and data sharing agreements before approval.',
+        'Provide training and support on Workspace tools.',
+      ]},
+      { label: 'VoIP, SIS, and Cybersecurity', items: [
+        'Oversee the VoIP phone system across all campuses.',
+        'Oversee the student information system and its state and federal data integrations.',
+        'Maintain the district cybersecurity posture, incident response plan, and staff awareness training.',
+        'Monitor for threats and respond promptly to incidents.',
+      ]},
+      { label: 'Physical Security Systems and Camera Infrastructure',
+        callout: { type: 'navy', text: '<strong>Physical Security Responsibility:</strong> The Technology Director holds direct responsibility for camera infrastructure and all physical security technology, a critical component of student and staff safety to be maintained with the same urgency as any life-safety system.' },
+        items: [
+        'Oversee security camera systems across all campuses, including installation, monitoring, and storage.',
+        'Audit camera coverage and treat outages as urgent safety matters requiring immediate resolution.',
+        'Manage footage storage, retention, and access controls in compliance with policy and law.',
+        'Oversee door access control, key card systems, alarms, and the Centegix staff alert system.',
+        'Oversee intercom and PA systems as core components of daily school safety.',
+        'Coordinate with principals and the Director of Operations on placement, drills, and upgrades.',
+        'Maintain a capital replacement plan so the district is never on end-of-life safety infrastructure.',
+      ]},
+      { label: 'Artificial Intelligence — Enabling Safe Access',
+        callout: { type: 'green', text: '<strong>District Expectation:</strong> The Technology Director is expected to be a proactive champion for responsible AI use. The role is to remove barriers to AI access for administrators and teachers, not to create them.' },
+        items: [
+        'Proactively research, evaluate, and recommend AI tools that support administrators and teachers.',
+        'Establish an efficient, accessible process for staff to request evaluation of new AI tools.',
+        'Maintain district guidelines for safe and appropriate AI use, including data privacy standards.',
+        'Evaluate AI tools for FERPA, COPPA, and student data privacy compliance before adoption.',
+        'Stay current on AI developments relevant to K-12 and bring findings to the cabinet proactively.',
+        'Coordinate with the Curriculum Director on AI tools with instructional applications.',
+        'Provide AI literacy training on available tools and district boundaries.',
+      ]},
+      { label: 'Supervision and Data Privacy', items: [
+        'Supervise campus tech support staff with clear service standards and response times.',
+        'Direct Tina Thomas, who provides administrative support on a dual-role basis with Special Education.',
+        'Serve as primary point of responsibility for technology-related data privacy compliance.',
+        'Review and approve vendor contracts involving student or staff data prior to execution.',
+      ]},
+    ],
+    qualRequired: ['Bachelor\'s degree in information technology, computer science, educational technology, or a related field','Minimum five years in technology administration or network management, preferably K-12','Demonstrated experience with network infrastructure, device deployment, and cybersecurity','Experience with Google Workspace for Education administration','Knowledge of FERPA, COPPA, and student data privacy requirements','Experience supervising technology support staff across multiple sites'],
+    qualPreferred: ['Master\'s degree in information technology or educational technology','Relevant certifications (Google Certified Administrator, CompTIA Security+, or equivalent)','Experience with physical security systems and access control platforms','Familiarity with AI tools used in K-12 education','Experience administering a student information system in a Georgia district','Background in technology strategic planning and capital project management'],
+    ksaLeft: ['Broad technical knowledge across network, device, cybersecurity, and enterprise systems','Understanding of physical security technology including cameras, access control, and VoIP','Ability to evaluate and implement AI tools responsibly','Strong project management skills for deployments and capital projects'],
+    ksaRight: ['Ability to communicate technical concepts clearly to non-technical audiences','Skill in supervising campus-based support staff across locations','Proactive mindset that addresses emerging needs before they become problems','Commitment to enabling staff with technology rather than restricting access'],
+    working: ['Full-time, 12-month position based at the central office with travel to all campuses.','On-call availability for network outages, cybersecurity incidents, and physical security failures.','Attendance at evening board meetings and required technology training.','Physical demands include equipment installation, server room work, and site visits.','Performance evaluated annually by the Superintendent.'],
+  },
+
+  cfo: {
+    title: 'Chief Financial Officer', secondary: null, incumbent: 'Currently: Tammy Franklin',
+    chips: ['Central Office','Cabinet Level','12-Month Position','Certified / Leadership'], fundingChip: null,
+    reportsTo: 'Superintendent of Schools',
+    directReports: [
+      { label: 'Accounts Payable', sub: 'Carly Rayhon, full-time Finance Staff' },
+      { label: 'CFO Support', sub: 'Viette Hunter, ½-time (dual role with Operations)' },
+    ],
+    summary: 'The Chief Financial Officer serves as the district\'s senior financial leader, responsible for the integrity, accuracy, and transparency of all financial operations, including the General Fund budget, special revenue and capital funds, payroll, accounts payable, purchasing, financial reporting, audit preparation, and compliance with GaDOE and state fiscal requirements.',
+    duties: [
+      { label: 'Budget Development and Management', items: [
+        'Lead annual development of the General Fund and all other fund budgets with the Superintendent and cabinet.',
+        'Build the budget using accurate QBE projections, local revenue estimates, and expenditure analysis.',
+        'Present the proposed budget to the Superintendent and Board with clear narrative.',
+        'Monitor the adopted budget, track variances, and recommend amendments.',
+        'Develop multi-year financial projections to inform strategic and capital planning.',
+      ]},
+      { label: 'QBE Funding and State Finance', items: [
+        'Manage Georgia\'s QBE funding formula, including FTE coordination and GaDOE submissions.',
+        'Monitor QBE allotments and advise on funding trends and revenue risks.',
+        'Coordinate FTE count accuracy with principals and the Curriculum Director.',
+        'Ensure the district maximizes QBE earnings and corrects coding errors promptly.',
+        'Manage other state allotments including equalization, sparsity, and transportation funds.',
+      ]},
+      { label: 'Payroll, AP, and Purchasing', items: [
+        'Oversee accurate, timely payroll with TRS and SHBP compliance.',
+        'Oversee accounts payable managed by Carly Rayhon under prompt payment requirements.',
+        'Direct purchasing in compliance with Georgia bid thresholds and federal requirements.',
+        'Maintain vendor relationships, purchase orders, and contract documentation.',
+      ]},
+      { label: 'Financial Reporting and Board Relations', items: [
+        'Prepare and present monthly financial reports to the Board.',
+        'Prepare the ACFR and required GaDOE submissions under GAAP and GASB.',
+        'Serve as the Board\'s primary resource on financial matters.',
+        'Support the Superintendent in communicating the district\'s financial position.',
+      ]},
+      { label: 'Audit and Compliance',
+        callout: { type: 'navy', text: '<strong>Fiscal Compliance Obligation:</strong> The CFO is the district\'s primary steward of public funds. Audit findings or fiscal mismanagement carry significant legal, financial, and reputational consequences.' },
+        items: [
+        'Coordinate the annual independent financial audit as primary contact for auditors.',
+        'Respond to audit findings with corrective action plans.',
+        'Ensure compliance with O.C.G.A. school finance provisions and GaDOE requirements.',
+        'Oversee federal grant fiscal compliance with the Federal Programs Director.',
+        'Maintain effective internal controls and regular reconciliation of all accounts.',
+      ]},
+      { label: 'ESPLOST, Risk, and Staff', items: [
+        'Manage ESPLOST fund accounting, project tracking, and required public reporting.',
+        'Manage property, casualty, and liability insurance programs.',
+        'Identify and mitigate financial risks including enrollment decline and deferred maintenance.',
+        'Supervise Carly Rayhon and cross-train finance staff for continuity of operations.',
+      ]},
+    ],
+    qualRequired: ['Bachelor\'s degree in accounting, finance, business administration, or a related field','Minimum five years in school district finance or governmental accounting','Demonstrated knowledge of Georgia QBE funding and GaDOE fiscal reporting','Experience with governmental fund accounting and GAAP/GASB statements','Experience coordinating an independent financial audit','Strong knowledge of payroll, AP, purchasing, and internal controls'],
+    qualPreferred: ['Master\'s degree in accounting, finance, business, or public administration','CPA or CGFM designation','Georgia School Finance Officer certification or GSFOA program','Experience with ESPLOST fund management and capital project accounting','Familiarity with federal grant compliance under 2 CFR Part 200','Prior experience as a CFO or Finance Director in a Georgia district'],
+    ksaLeft: ['Deep knowledge of governmental accounting and Georgia school finance law','Thorough understanding of QBE, FTE counts, and state revenue allotments','Ability to develop, present, and manage complex multi-fund budgets','Skill in designing and maintaining effective internal controls'],
+    ksaRight: ['Strong communication skills for presenting financial information to varied audiences','Ability to supervise and develop finance staff with high accuracy','Sound judgment and absolute integrity in the stewardship of public funds','Capacity to serve as a trusted strategic advisor on financial planning and risk'],
+    working: ['Full-time, 12-month position based at the central office.','Attendance at all Board meetings, budget work sessions, and finance committees.','Significant year-end workload for audit preparation and fiscal close.','Attendance at GaDOE fiscal training and GSFOA events.','Physical demands consistent with a typical office environment.','Performance evaluated annually by the Superintendent.'],
+  },
+
+};
+
+const JD_CARD_MAP = {
+  'card-curriculum': 'curriculum',
+  'card-ops':        'operations',
+  'card-sped':       'sped',
+  'card-federal':    'federal',
+  'card-tech':       'technology',
+  'card-cfo':        'cfo',
+};
+
+Object.keys(JD_CARD_MAP).forEach(function(cardId) {
+  var card = document.getElementById(cardId);
+  if (!card) return;
+  card.classList.add('has-jd');
+  card.addEventListener('click', function(e) {
+    if (editMode) return;
+    if (e.target.closest('.card-edit-btn')) return;
+    openJD(JD_CARD_MAP[cardId]);
+  });
+});
+
+function buildJDHeader(jd) {
+  var chips = jd.chips.map(function(c){ return '<span class="jd-chip">'+c+'</span>'; }).join('');
+  if (jd.fundingChip) chips += '<span class="jd-chip jd-chip-funding">'+jd.fundingChip+'</span>';
+  return '<div class="jd-eyebrow">McIntosh County School System &nbsp;&middot;&nbsp; Job Description</div>'+
+    '<h2>'+jd.title+'</h2>'+
+    (jd.secondary ? '<div class="jd-secondary">'+jd.secondary+'</div>' : '')+
+    '<div class="jd-incumbent">'+jd.incumbent+'</div>'+
+    '<div class="jd-chips">'+chips+'</div>';
+}
+
+function buildJDBody(jd) {
+  var html = '';
+  html += '<div class="jd-section"><div class="jd-section-label">Reporting Structure</div>';
+  html += '<div class="jd-reports-box"><strong>Reports directly to:</strong> '+jd.reportsTo+'</div>';
+  html += '<div class="jd-section-label" style="margin-top:1rem;">Direct Reports &amp; Areas of Oversight</div>';
+  html += '<div class="jd-dr-grid">';
+  jd.directReports.forEach(function(dr){ html += '<div class="jd-dr-chip">'+dr.label+'<span>'+dr.sub+'</span></div>'; });
+  html += '</div></div>';
+  html += '<div class="jd-section"><div class="jd-section-label">Position Summary</div>';
+  html += '<p class="jd-intro">'+jd.summary+'</p></div>';
+  html += '<div class="jd-section"><div class="jd-section-label">Essential Duties and Responsibilities</div>';
+  jd.duties.forEach(function(duty){
+    html += '<div class="jd-q-block"><div class="jd-q-label">'+duty.label+'</div>';
+    if (duty.callout) html += '<div class="jd-callout jd-callout-'+duty.callout.type+'">'+duty.callout.text+'</div>';
+    html += '<ul class="jd-list">';
+    duty.items.forEach(function(item){ html += '<li>'+item+'</li>'; });
+    html += '</ul></div>';
+  });
+  html += '</div>';
+  html += '<div class="jd-section"><div class="jd-section-label">Qualifications</div><div class="jd-two-col">';
+  html += '<div><div class="jd-q-label">Required</div><ul class="jd-list">';
+  jd.qualRequired.forEach(function(q){ html += '<li>'+q+'</li>'; });
+  html += '</ul></div><div><div class="jd-q-label">Preferred</div><ul class="jd-list">';
+  jd.qualPreferred.forEach(function(q){ html += '<li>'+q+'</li>'; });
+  html += '</ul></div></div></div>';
+  html += '<div class="jd-section"><div class="jd-section-label">Knowledge, Skills, and Abilities</div><div class="jd-two-col"><ul class="jd-list">';
+  jd.ksaLeft.forEach(function(k){ html += '<li>'+k+'</li>'; });
+  html += '</ul><ul class="jd-list">';
+  jd.ksaRight.forEach(function(k){ html += '<li>'+k+'</li>'; });
+  html += '</ul></div></div>';
+  html += '<div class="jd-section"><div class="jd-section-label">Working Conditions</div><ul class="jd-list">';
+  jd.working.forEach(function(w){ html += '<li>'+w+'</li>'; });
+  html += '</ul></div>';
+  return html;
+}
+
+function buildPrintRoot(jd) {
+  var chips = jd.chips.map(function(c){ return '<span class="jp-chip">'+c+'</span>'; }).join('');
+  if (jd.fundingChip) chips += '<span class="jp-chip jp-chip-funding">'+jd.fundingChip+'</span>';
+  var html = '<div class="jp-hdr">';
+  html += '<div class="jp-eyebrow">McIntosh County School System &nbsp;&middot;&nbsp; Job Description</div>';
+  html += '<h1>'+jd.title+'</h1>';
+  if (jd.secondary) html += '<div class="jp-secondary">'+jd.secondary+'</div>';
+  html += '<div class="jp-incumbent">'+jd.incumbent+'</div>';
+  html += '<div class="jp-chips">'+chips+'</div></div><div class="jp-body">';
+  html += '<div class="jp-section"><div class="jp-section-label">Reporting Structure</div>';
+  html += '<div class="jp-reports-box"><strong>Reports directly to:</strong> '+jd.reportsTo+'</div>';
+  html += '<div class="jp-section-label">Direct Reports &amp; Areas of Oversight</div><div class="jp-dr-grid">';
+  jd.directReports.forEach(function(dr){ html += '<div class="jp-dr-chip"><strong>'+dr.label+'</strong><br>'+dr.sub+'</div>'; });
+  html += '</div></div>';
+  html += '<div class="jp-section"><div class="jp-section-label">Position Summary</div><p class="jp-intro">'+jd.summary+'</p></div>';
+  html += '<div class="jp-section"><div class="jp-section-label">Essential Duties and Responsibilities</div>';
+  jd.duties.forEach(function(duty,i){
+    html += '<div class="jp-q-label" style="'+(i>0?'margin-top:7pt;':'')+'margin-bottom:4pt;">'+duty.label+'</div>';
+    if (duty.callout) html += '<div class="jp-callout-'+duty.callout.type+'">'+duty.callout.text+'</div>';
+    html += '<ul class="jp-list">';
+    duty.items.forEach(function(item){ html += '<li>'+item+'</li>'; });
+    html += '</ul>';
+  });
+  html += '</div>';
+  html += '<div class="jp-section"><div class="jp-section-label">Qualifications</div><div class="jp-two-col"><div><div class="jp-q-label">Required</div><ul class="jp-list">';
+  jd.qualRequired.forEach(function(q){ html += '<li>'+q+'</li>'; });
+  html += '</ul></div><div><div class="jp-q-label">Preferred</div><ul class="jp-list">';
+  jd.qualPreferred.forEach(function(q){ html += '<li>'+q+'</li>'; });
+  html += '</ul></div></div></div>';
+  html += '<div class="jp-section"><div class="jp-section-label">Knowledge, Skills, and Abilities</div><div class="jp-two-col"><ul class="jp-list">';
+  jd.ksaLeft.forEach(function(k){ html += '<li>'+k+'</li>'; });
+  html += '</ul><ul class="jp-list">';
+  jd.ksaRight.forEach(function(k){ html += '<li>'+k+'</li>'; });
+  html += '</ul></div></div>';
+  html += '<div class="jp-section"><div class="jp-section-label">Working Conditions</div><ul class="jp-list">';
+  jd.working.forEach(function(w){ html += '<li>'+w+'</li>'; });
+  html += '</ul></div></div>';
+  return html;
+}
+
+var currentJDKey = null;
+function openJD(key) {
+  var jd = JD_DATA[key];
+  if (!jd) return;
+  currentJDKey = key;
+  document.getElementById('jd-hdr').innerHTML = buildJDHeader(jd);
+  document.getElementById('jd-body').innerHTML = buildJDBody(jd);
+  document.getElementById('jd-body').scrollTop = 0;
+  document.getElementById('jdOverlay').classList.add('jd-open');
+  document.getElementById('jd-drawer').classList.add('jd-open');
+  document.body.style.overflow = 'hidden';
+}
+function closeJD() {
+  document.getElementById('jdOverlay').classList.remove('jd-open');
+  document.getElementById('jd-drawer').classList.remove('jd-open');
+  document.body.style.overflow = '';
+  currentJDKey = null;
+}
+function printJD() {
+  if (!currentJDKey) return;
+  document.getElementById('jd-print-root').innerHTML = buildPrintRoot(JD_DATA[currentJDKey]);
+  document.body.classList.add('jd-print-active');
+  window.print();
+}
+window.addEventListener('afterprint', function(){ document.body.classList.remove('jd-print-active'); });
+document.addEventListener('keydown', function(e){ if (e.key === 'Escape' && currentJDKey) closeJD(); });
+
+</script>
+</body>
+</html>
