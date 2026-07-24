@@ -58,6 +58,7 @@ body{font-family:'Georgia','Times New Roman',serif;background:#f0f3f7;color:#1a2
 .leg-item{display:flex;align-items:center;gap:6px}
 .leg-dot{width:11px;height:11px;border-radius:2px;flex-shrink:0}
 .save-indicator{margin-left:auto;font-family:Arial,sans-serif;font-size:.65rem;color:var(--muted);font-style:italic;transition:opacity .4s}
+.sync-status{margin-left:auto;font-family:Arial,sans-serif;font-size:.65rem;color:var(--mid);font-weight:700}
 /* Canvas */
 .canvas{padding:32px 16px 80px;overflow-x:auto}
 /* Org tree */
@@ -705,8 +706,9 @@ body{font-family:'Georgia','Times New Roman',serif;background:#f0f3f7;color:#1a2
 </div>
 <div class="edit-banner" id="editBanner">
 <strong>✏️ Edit Mode Active</strong> &mdash; Click any name to edit inline &nbsp;|&nbsp; Click ✕ on any row to remove it &nbsp;|&nbsp; Click <em>+ Add Position</em> under any list to add a new role
-<br><span style="font-size:.92em">Your edits are stored <strong>only in this browser</strong> (<span id="editCountLabel">no edits saved yet</span>). Nobody else sees them until you click <strong>Download Updated Chart</strong> and that file is published.</span>
+<br><span style="font-size:.92em" id="shareNotice">Your edits are stored <strong>only in this browser</strong> (<span id="editCountLabel">no edits saved yet</span>). Nobody else sees them until you click <strong>Download Updated Chart</strong> and that file is published.</span>
 <span style="margin-left:auto;display:flex;gap:6px;flex-wrap:wrap">
+<button class="btn btn-banner btn-sm no-print" id="syncNowBtn" onclick="syncNow()" title="Send your edits now and pull everyone else's" style="display:none">&#8635; Sync Now</button>
 <button class="btn btn-banner btn-sm no-print" onclick="downloadBakedChart()" title="Save a copy of this page with all edits built in, ready to commit to GitHub">⬇ Download Updated Chart</button>
 <button class="btn btn-banner btn-sm no-print" onclick="exportEdits()" title="Save your edits as a JSON file">💾 Export Edits</button>
 <button class="btn btn-banner btn-sm no-print" onclick="document.getElementById('importFile').click()" title="Load edits from a JSON file">📥 Import Edits</button>
@@ -722,6 +724,7 @@ body{font-family:'Georgia','Times New Roman',serif;background:#f0f3f7;color:#1a2
 <div class="leg-item"><div class="leg-dot" style="background:var(--steel)"></div>Staff</div>
 <div class="leg-item"><div class="leg-dot" style="background:var(--tbd-bg);border:1px dashed #888"></div>TBD</div>
 <div class="leg-item"><span style="color:var(--gold);font-weight:700">★</span>&nbsp;Dual role</div>
+<div class="sync-status no-print" id="syncStatus"></div>
 <div class="save-indicator" id="saveIndicator"></div>
 <div class="no-print" style="margin-left:auto;font-family:Arial,sans-serif;font-size:.63rem;font-style:italic;color:var(--muted)">Click ▸ on any principal card to expand their team</div>
 </div>
@@ -1262,6 +1265,109 @@ body{font-family:'Georgia','Times New Roman',serif;background:#f0f3f7;color:#1a2
 <script>
 // ── Storage ──
 const STORE_KEY = 'mcss-org-chart-v2';
+
+// ══════════════════════════════════════════════════════════════════
+// SHARED SYNC  ── paste your Apps Script Web App URL below to turn on
+// ══════════════════════════════════════════════════════════════════
+// Leave SYNC_URL blank and the chart behaves exactly as before:
+// edits stay in this browser only. Fill it in and every edit is shared
+// with everyone who opens the chart.
+const SYNC_URL   = 'https://script.google.com/macros/s/AKfycbxMifeoZqNRw3OU-xofUVQS3UhVCo9-CrTDRSjPj6gfVyoi_3G2qHsYaKKP3bdfY9Uq/exec';   // e.g. https://script.google.com/macros/s/AKfy.../exec
+const SYNC_TOKEN = '20262027894517';   // must match SHARED_TOKEN in Code.gs
+const SYNC_TIMEOUT_MS = 8000;
+
+function syncEnabled(){ return !!SYNC_URL; }
+
+function setSyncStatus(text,color){
+const el=document.getElementById('syncStatus');
+if(!el) return;
+el.textContent=text||'';
+el.style.color=color||'';
+}
+// Who is editing — asked once, kept for the audit log in the Sheet
+function editorName(){
+try{
+  let n=localStorage.getItem('mcss-editor-name');
+  if(!n){
+    n=prompt('Your name (recorded next to your edits):')||'';
+    n=n.trim();
+    if(n) localStorage.setItem('mcss-editor-name',n);
+  }
+  return n||'unknown';
+}catch(e){ return 'unknown'; }
+}
+function fetchWithTimeout(url,opts){
+opts=opts||{};
+if(typeof AbortController==='undefined') return fetch(url,opts);
+const ac=new AbortController();
+const t=setTimeout(()=>ac.abort(),SYNC_TIMEOUT_MS);
+opts.signal=ac.signal;
+return fetch(url,opts).finally(()=>clearTimeout(t));
+}
+// Pull the shared edits and merge them in. Server wins on conflicts;
+// anything only this browser has is pushed up so offline work isn't lost.
+async function pullShared(){
+if(!syncEnabled()) return false;
+if(typeof fetch!=='function'){ setSyncStatus('⚠ This browser cannot sync','#b00020'); return false; }
+setSyncStatus('Syncing…');
+try{
+  const res=await fetchWithTimeout(SYNC_URL,{method:'GET'});
+  const out=await res.json();
+  if(!out||!out.ok) throw new Error((out&&out.error)||'server error');
+  const server=out.data||{};
+  const local=loadData();
+  const merged=Object.assign({},local,server);
+  try{ localStorage.setItem(STORE_KEY,JSON.stringify(merged)); }catch(e){}
+  const localOnly={};
+  Object.keys(local).forEach(k=>{ if(!(k in server)) localOnly[k]=local[k]; });
+  if(Object.keys(localOnly).length) queuePush(localOnly);
+  setSyncStatus('✓ Synced');
+  return true;
+}catch(err){
+  setSyncStatus('⚠ Offline — edits saved on this device only','#b00020');
+  return false;
+}
+}
+// Outgoing changes are batched so rapid edits become one request
+let pushQueue={}, pushTimer=null, pushInFlight=false;
+function queuePush(changes){
+if(!syncEnabled()) return;
+Object.assign(pushQueue,changes);
+setSyncStatus('Saving to shared chart…');
+clearTimeout(pushTimer);
+pushTimer=setTimeout(flushPush,600);
+}
+async function flushPush(){
+if(!syncEnabled()||pushInFlight) return;
+const batch=pushQueue;
+if(!Object.keys(batch).length) return;
+pushQueue={}; pushInFlight=true;
+try{
+  const res=await fetchWithTimeout(SYNC_URL,{
+    method:'POST',
+    // text/plain avoids a CORS preflight that Apps Script cannot answer
+    headers:{'Content-Type':'text/plain;charset=utf-8'},
+    body:JSON.stringify({token:SYNC_TOKEN,who:editorName(),changes:batch})
+  });
+  const out=await res.json();
+  if(!out||!out.ok) throw new Error((out&&out.error)||'server error');
+  setSyncStatus('✓ Shared with everyone');
+}catch(err){
+  Object.assign(pushQueue,batch);   // put it back and retry on the next edit
+  setSyncStatus('⚠ Not shared yet — will retry','#b00020');
+}finally{
+  pushInFlight=false;
+  if(Object.keys(pushQueue).length){ clearTimeout(pushTimer); pushTimer=setTimeout(flushPush,3000); }
+}
+}
+async function syncNow(){
+if(!syncEnabled()){ alert('Shared sync is not turned on for this chart.'); return; }
+await flushPush();
+const before=JSON.stringify(loadData());
+await pullShared();
+if(JSON.stringify(loadData())!==before) location.reload();
+}
+
 // ── Storage health ──
 // Edits live in this browser's localStorage. If that's blocked (Private mode,
 // strict privacy settings, or some browsers when opened as a local file), saving
@@ -1307,8 +1413,8 @@ function saveData(d){
 try{ localStorage.setItem(STORE_KEY,JSON.stringify(d)); flashSaved(); updateEditCount(); }
 catch(e){ checkStorage(); updateEditCount(); flashSaved('⚠ NOT SAVED — see red bar above','#b00020'); }
 }
-function setField(id,val){ const d=loadData(); d[id]=val; saveData(d); }
-function removeField(key){ const d=loadData(); delete d[key]; saveData(d); }
+function setField(id,val){ const d=loadData(); d[id]=val; saveData(d); queuePush({[id]:val}); }
+function removeField(key){ const d=loadData(); delete d[key]; saveData(d); queuePush({[key]:null}); }
 function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
 function flashSaved(msg,color){
 const el=document.getElementById('saveIndicator');
@@ -1844,11 +1950,24 @@ let d; try{ d=JSON.parse(reader.result); }catch(e){ alert('That file is not vali
 if(typeof d!=='object'||d===null||Array.isArray(d)){ alert('That file is not a valid edits export.'); return; }
 if(!confirm('Importing will replace your current saved edits with the ones in this file. Continue?')) return;
 try{ localStorage.setItem(STORE_KEY,JSON.stringify(d)); }catch(e){ alert('Import failed: could not save to this browser.'); return; }
+if(syncEnabled()){ queuePush(d); flushPush().then(()=>location.reload()); return; }
 location.reload();
 };
 reader.readAsText(file);
 });
 function resetAllEdits(){
+if(syncEnabled()){
+  if(!confirm('Shared sync is ON.\n\nThis erases every saved edit FOR EVERYONE, not just this computer, and restores the original chart.\n\nContinue?')) return;
+  const all=loadData();
+  const nulls={};
+  Object.keys(all).forEach(k=>{ nulls[k]=null; });
+  if(Object.keys(nulls).length) queuePush(nulls);
+  flushPush().then(()=>{
+    try{ localStorage.removeItem(STORE_KEY); }catch(e){}
+    location.reload();
+  });
+  return;
+}
 if(!confirm('Erase ALL saved edits and restore the original chart? This cannot be undone. (Tip: Export Edits first if you might want them back.)')) return;
 try{ localStorage.removeItem(STORE_KEY); }catch(e){}
 location.reload();
@@ -1893,11 +2012,32 @@ downloadBlob('<!DOCTYPE html>\n'+clone.outerHTML,'index.html','text/html');
 flashSaved('✓ Downloaded — commit this file to GitHub');
 }
 // ── Init ──
-checkStorage();
-initEditables();
-applyStoredData();
-updateCounts();
+(async function boot(){
+  try{ checkStorage(); }catch(e){}
+  // Sync is best-effort. A backend outage must never stop the chart rendering.
+  try{
+    if(syncEnabled()){
+      const btn=document.getElementById('syncNowBtn');
+      if(btn) btn.style.display='';
+      await pullShared();        // shared edits win; failure falls back to local
+    }
+  }catch(e){
+    setSyncStatus('⚠ Offline — edits saved on this device only','#b00020');
+  }
+  initEditables();
+  applyStoredData();
+  updateCounts();
+  updateEditCount();
+  updateShareNotice();
+})();
+function updateShareNotice(){
+const el=document.getElementById('shareNotice');
+if(!el) return;
+el.innerHTML = syncEnabled()
+  ? 'Shared sync is <strong>ON</strong>. Your edits are saved for <strong>everyone</strong> as soon as you make them.'
+  : 'Your edits are stored <strong>only in this browser</strong> (<span id="editCountLabel">no edits saved yet</span>). Nobody else sees them until you click <strong>Download Updated Chart</strong> and that file is published.';
 updateEditCount();
+}
 // ══════════════════════════════════════════════════════════════════
 // JOB DESCRIPTION DRAWER
 // ══════════════════════════════════════════════════════════════════
