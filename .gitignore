@@ -1,0 +1,3 @@
+# Local security-audit output — must never be published to this public repo
+# (contains live endpoint URLs, credentials context, and student-data locations)
+github-audit/
